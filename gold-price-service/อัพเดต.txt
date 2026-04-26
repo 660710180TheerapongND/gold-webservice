@@ -1,0 +1,18 @@
+<1:47 27/04/2569>
+poo -> ใช้คำสั่ง npm install express
+    -> ได้ไฟล์ package-lock.json, package.json
+
+<1:49 27/04/2569>
+poo -> แก้ไขไฟล์ storage.js, app.js, gold_data.json
+
+<1:55 27/04/2569>
+poo -> ทดสอบ การเพิ่มข้อมูลราคาทอง Api POST: /prices
+    -> code ทดสอบ curl -X POST http://localhost:3000/prices \
+                   -H "Content-Type: application/json" \
+                   -d '{"price":40500,"timestamp":"2026-04-27T10:00:00Z"}'
+    -> เช็คไฟล์ gold_data.json ข้อมูลต้องมีการอัพเดต
+
+<2:02 27/04/2569>
+poo -> ทดสอบ การดึงข้อมูลราคาทองทั้งหมด Api GET: /prices/history
+    -> code ทดสอบ curl http://localhost:3000/prices/history
+    -> เห็น array [{  "price": 40500,  "timestamp": "2026-04-27T10:00:00Z"}]
