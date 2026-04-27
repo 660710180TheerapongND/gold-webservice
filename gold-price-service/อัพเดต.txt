@@ -1,6 +1,6 @@
 <1:47 27/04/2569>
 poo -> ใช้คำสั่ง npm install express
-    -> ได้ไฟล์ package-lock.json, package.json
+    -> ได้ไฟล์ node_modules, package-lock.json, package.json
 
 <1:49 27/04/2569>
 poo -> แก้ไขไฟล์ storage.js, gold_data.json
