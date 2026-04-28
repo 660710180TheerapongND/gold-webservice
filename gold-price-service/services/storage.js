@@ -67,7 +67,9 @@ app.post('/prices', (req, res) => {
 
     if (!validate(newData)) {
       return res.status(400).json({
-        error: 'ต้องมี price และ timestamp'
+        status: "error",
+        code: 400,
+        message: 'ต้องมี price และ timestamp'
       });
     }
 
@@ -75,14 +77,24 @@ app.post('/prices', (req, res) => {
     data.push(newData);
     writeData(data);
 
+    const responseData = {
+      id: `gold-${data.length.toString().padStart(3, '0')}`,
+      price: newData.price,
+      trend: data.length > 1 ? (newData.price > data[data.length - 2].price ? 'up' : 'down') : 'up',
+      timestamp: newData.timestamp,
+      source: 'Simulation-A'
+    };
+
     res.status(201).json({
-      message: 'เพิ่มข้อมูลสำเร็จ',
-      data: newData
+      status: "success",
+      data: responseData
     });
 
   } catch (err) {
     res.status(err.status || 500).json({
-      error: err.message || 'Internal Server Error'
+      status: "error",
+      code: err.status || 500,
+      message: err.message || 'Internal Server Error'
     });
   }
 });
@@ -96,15 +108,33 @@ app.get('/prices/latest', (req, res) => {
 
     if (data.length === 0) {
       return res.status(404).json({
-        error: 'ไม่มีข้อมูล'
+        status: "error",
+        code: 404,
+        message: 'ไม่มีข้อมูล'
       });
     }
 
-    res.json(data[data.length - 1]);
+    const latest = data[data.length - 1];
+    const previous = data.length > 1 ? data[data.length - 2] : null;
+
+    const responseData = {
+      id: `gold-${data.length.toString().padStart(3, '0')}`,
+      price: latest.price,
+      trend: previous ? (latest.price > previous.price ? 'up' : 'down') : 'up',
+      timestamp: latest.timestamp,
+      source: 'Simulation-A'
+    };
+
+    res.json({
+      status: "success",
+      data: responseData
+    });
 
   } catch (err) {
     res.status(err.status || 500).json({
-      error: err.message || 'Internal Server Error'
+      status: "error",
+      code: err.status || 500,
+      message: err.message || 'Internal Server Error'
     });
   }
 });
@@ -115,10 +145,28 @@ app.get('/prices/latest', (req, res) => {
 app.get('/prices/history', (req, res) => {
   try {
     const data = readData();
-    res.json(data);
+
+    const responseData = data.map((item, index) => {
+      const previous = index > 0 ? data[index - 1] : null;
+      return {
+        id: `gold-${(index + 1).toString().padStart(3, '0')}`,
+        price: item.price,
+        trend: previous ? (item.price > previous.price ? 'up' : 'down') : 'up',
+        timestamp: item.timestamp,
+        source: 'Simulation-A'
+      };
+    });
+
+    res.json({
+      status: "success",
+      data: responseData
+    });
+
   } catch (err) {
     res.status(err.status || 500).json({
-      error: err.message || 'Internal Server Error'
+      status: "error",
+      code: err.status || 500,
+      message: err.message || 'Internal Server Error'
     });
   }
 });
