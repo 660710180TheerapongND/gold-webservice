@@ -1,316 +1,188 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Check, ArrowRight, Star, Zap, Crown, Shield, Plus, Minus, ChevronLeft } from 'lucide-react';
+import axios from 'axios';
+import { Check, ArrowRight, Star, Zap, Crown, Shield, ChevronLeft } from 'lucide-react';
 
-// ─── Design tokens ─────────────────────────────────────────────────────────────
 const T = {
-  ink:    '#0E0B06',
+  ink:    '#0A0806',
   paper:  '#FAF7F0',
   gold:   '#B8872A',
   goldLt: '#E8C56A',
   goldDk: '#7A5510',
-  mist:   '#E8E2D4',
-  fog:    '#C8C0AA',
-  cream:  '#F2EDE0',
+  mist:   'rgba(184,135,42,0.15)',
+  fog:    'rgba(250,247,240,0.35)',
   serif:  "'Cormorant Garamond', serif",
   sans:   "'Syne', sans-serif",
+  mono:   "'DM Mono', monospace",
 };
 
-// ... (PLANS, TRUST_ITEMS, COMPARISON_DATA, FAQ_DATA, styles ต่างๆ คงเดิม) ...
-
 const PLANS = [
-  {
-    id: 'basic',
-    tier: '01',
-    name: 'Basic',
-    badge: 'ฟรีตลอดกาล',
-    badgeVariant: 'free',
-    monthlyPrice: null,
-    icon: Zap,
-    features: [
-      'API 5 requests / minute',
-      'ราคาทองคำ Real-time',
-      'Auto sync ทุก 1 นาที',
-    ],
-    cta: 'เริ่มใช้งานฟรี',
-    variant: 'basic',
-  },
-  {
-    id: 'silver',
-    tier: '02',
-    name: 'Silver',
-    badge: 'Most Popular',
-    badgeVariant: 'popular',
-    monthlyPrice: 499,
-    icon: Crown,
-    features: [
-      'API 10 requests / minute',
-      'สถิติ Min / Max / Average',
-      'กราฟย้อนหลัง 24 ชั่วโมง',
-      'Dashboard แบบ Pro',
-    ],
-    cta: 'เลือกแผน Silver',
-    variant: 'silver',
-  },
-  {
-    id: 'gold',
-    tier: '03',
-    name: 'Gold',
-    badge: 'Best Value',
-    badgeVariant: 'best',
-    monthlyPrice: 999,
-    icon: Shield,
-    features: [
-      'API 20 requests / minute',
-      'Technical Analysis เต็มรูปแบบ',
-      'Export CSV ไม่จำกัด',
-      'Priority Support 24/7',
-      'Custom Webhook & Alerts',
-    ],
-    cta: 'เลือกแผน Gold',
-    variant: 'gold',
-  },
-];
-
-const TRUST_ITEMS = [
-  { icon: '🔐', label: 'SSL Encrypted' },
-  { icon: '⚡', label: 'เปิดใช้ทันที' },
-  { icon: '↩️', label: 'ยกเลิกได้ตลอดเวลา' },
-  { icon: '🇹🇭', label: 'รองรับ PromptPay' },
+  { id: 'basic', tier: '01', name: 'Basic', badge: 'ฟรีตลอดกาล', badgeVariant: 'free', monthlyPrice: null, icon: Zap, features: ['API 5 requests / minute', 'ราคาทองคำ Real-time', 'Auto sync ทุก 1 นาที'], cta: 'เริ่มใช้งานฟรี', variant: 'basic' },
+  { id: 'silver', tier: '02', name: 'Silver', badge: 'Most Popular', badgeVariant: 'popular', monthlyPrice: 499, icon: Crown, features: ['API 10 requests / minute', 'สถิติ Min / Max / Average', 'กราฟย้อนหลัง 24 ชั่วโมง', 'Dashboard แบบ Pro'], cta: 'เลือกแผน Silver', variant: 'silver' },
+  { id: 'gold', tier: '03', name: 'Gold', badge: 'Best Value', badgeVariant: 'best', monthlyPrice: 999, icon: Shield, features: ['API 20 requests / minute', 'Technical Analysis เต็มรูปแบบ', 'Export CSV ไม่จำกัด', 'Priority Support 24/7', 'Custom Webhook & Alerts'], cta: 'เลือกแผน Gold', variant: 'gold' },
 ];
 
 const COMPARISON_DATA = [
-  { feature: 'API Rate Limit', basic: '5 req/min', silver: '10 req/min', gold: '20 req/min' },
-  { feature: 'Historical Data', basic: '1 Hour', silver: '24 Hours', gold: 'Unlimited' },
-  { feature: 'Technical Analysis', basic: '—', silver: 'Basic', gold: 'Advanced' },
-  { feature: 'CSV Export', basic: '❌', silver: '10 / day', gold: 'Unlimited' },
-  { feature: 'Support', basic: 'Community', silver: 'Email', gold: '24/7 Priority' },
-];
-
-const FAQ_DATA = [
-  { q: "เปลี่ยนแพ็กเกจภายหลังได้ไหม?", a: "ได้แน่นอน คุณสามารถอัปเกรดหรือลดระดับสมาชิกได้ตลอดเวลาผ่านหน้า Dashboard โดยระบบจะคำนวณส่วนต่างราคาให้โดยอัตโนมัติ" },
-  { q: "API Key จะได้รับทันทีหรือไม่?", a: "ทันทีที่การสมัครสมาชิกสำเร็จ ระบบจะทำการออก API Key ให้คุณเริ่มใช้งานผ่านหน้า Profile ได้ทันที" },
-  { q: "รองรับการชำระเงินช่องทางใดบ้าง?", a: "เราเตอร์รองรับ PromptPay และ Mobile Banking ทุกธนาคารในประเทศไทย" },
+  { feature: 'API Rate Limit',     basic: '5 req/min',  silver: '10 req/min', gold: '20 req/min' },
+  { feature: 'Historical Data',    basic: '1 Hour',      silver: '24 Hours',   gold: 'Unlimited'  },
+  { feature: 'Technical Analysis', basic: '—',           silver: 'Basic',      gold: 'Advanced'   },
+  { feature: 'CSV Export',         basic: '—',           silver: '10 / day',   gold: 'Unlimited'  },
+  { feature: 'Support',            basic: 'Community',   silver: 'Email',      gold: '24/7 Priority' },
 ];
 
 const badgeStyles = {
-  free: { background: 'rgba(14,11,6,0.06)', color: T.fog, border: `1px solid ${T.mist}` },
-  popular: { background: 'rgba(184,135,42,0.12)', color: T.goldDk, border: '1px solid rgba(184,135,42,0.25)' },
-  best: { background: 'rgba(184,135,42,0.2)', color: T.goldLt, border: '1px solid rgba(184,135,42,0.4)' },
+  free:    { background: 'rgba(250,247,240,0.06)', color: T.fog,    border: '1px solid rgba(250,247,240,0.1)' },
+  popular: { background: 'rgba(184,135,42,0.12)',  color: T.goldLt, border: '1px solid rgba(184,135,42,0.3)' },
+  best:    { background: 'rgba(184,135,42,0.22)',  color: T.goldLt, border: '1px solid rgba(184,135,42,0.45)' },
 };
 
 const cardThemes = {
   basic: {
-    card: { background: T.cream, border: `1px solid ${T.mist}` },
-    planName: { color: T.fog }, priceMain: { color: T.ink }, priceUnit: { color: T.fog }, priceAlt: { color: 'rgba(14,11,6,0.2)' },
-    divider: { background: T.mist }, checkBg: { background: 'rgba(14,11,6,0.06)', border: `1px solid ${T.mist}` },
-    checkColor: '#9E8A6E', featureText: { color: '#6B6050' }, cta: { background: 'transparent', border: `1px solid ${T.mist}`, color: T.ink },
-    ctaHover: { background: 'rgba(14,11,6,0.05)' }, watermark: { color: T.ink }
+    card: { background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)' },
+    tier: { color: 'rgba(250,247,240,0.08)' }, planName: { color: 'rgba(250,247,240,0.35)' },
+    priceMain: { color: '#FAF7F0' }, priceUnit: { color: 'rgba(250,247,240,0.3)' },
+    divider: { background: 'rgba(255,255,255,0.06)' }, checkBg: { background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)' },
+    checkColor: 'rgba(250,247,240,0.4)', featureText: { color: 'rgba(250,247,240,0.45)' },
+    cta: { background: 'transparent', border: '1px solid rgba(255,255,255,0.12)', color: 'rgba(250,247,240,0.7)' },
+    ctaHover: { background: 'rgba(255,255,255,0.06)', color: '#FAF7F0' },
   },
   silver: {
-    card: { background: T.ink, border: '1px solid rgba(232,197,106,0.2)' },
-    planName: { color: 'rgba(255,255,255,0.4)' }, priceMain: { color: '#fff' }, priceUnit: { color: 'rgba(255,255,255,0.3)' }, priceAlt: { color: 'rgba(255,255,255,0.2)' },
-    divider: { background: 'rgba(255,255,255,0.08)' }, checkBg: { background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)' },
-    checkColor: 'rgba(255,255,255,0.5)', featureText: { color: 'rgba(255,255,255,0.55)' }, cta: { background: '#fff', border: 'none', color: T.ink },
-    ctaHover: { background: 'rgba(255,255,255,0.9)' }, watermark: { color: '#fff' }
+    card: { background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.12)' },
+    tier: { color: 'rgba(250,247,240,0.1)' }, planName: { color: 'rgba(250,247,240,0.5)' },
+    priceMain: { color: '#fff' }, priceUnit: { color: 'rgba(255,255,255,0.3)' },
+    divider: { background: 'rgba(255,255,255,0.08)' }, checkBg: { background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.15)' },
+    checkColor: 'rgba(255,255,255,0.6)', featureText: { color: 'rgba(255,255,255,0.55)' },
+    cta: { background: '#FAF7F0', border: 'none', color: '#0A0806' },
+    ctaHover: { background: '#fff', color: '#0A0806' },
   },
   gold: {
-    card: { background: 'linear-gradient(145deg,#1C1408 0%,#0E0B06 100%)', border: `1px solid ${T.gold}`, boxShadow: '0 0 0 1px rgba(184,135,42,0.1),inset 0 1px 0 rgba(232,197,106,0.15)' },
-    planName: { color: T.gold }, priceMain: { color: T.goldLt }, priceUnit: { color: 'rgba(232,197,106,0.4)' }, priceAlt: { color: 'rgba(232,197,106,0.25)' },
-    divider: { background: 'rgba(184,135,42,0.25)' }, checkBg: { background: 'rgba(184,135,42,0.15)', border: '1px solid rgba(184,135,42,0.3)' },
-    checkColor: T.gold, featureText: { color: 'rgba(232,197,106,0.7)' }, cta: { background: `linear-gradient(135deg, ${T.gold}, ${T.goldLt})`, border: 'none', color: T.ink },
-    ctaHover: { background: 'linear-gradient(135deg,#D4A030,#F0D070)' }, watermark: { color: '#fff' }
-  }
+    card: { background: 'linear-gradient(145deg,#1C1408 0%,#100C06 100%)', border: `1px solid ${T.gold}`, boxShadow: '0 0 0 1px rgba(184,135,42,0.1), inset 0 1px 0 rgba(232,197,106,0.12), 0 20px 60px rgba(184,135,42,0.12)' },
+    tier: { color: 'rgba(184,135,42,0.15)' }, planName: { color: T.gold },
+    priceMain: { color: T.goldLt }, priceUnit: { color: 'rgba(232,197,106,0.4)' },
+    divider: { background: 'rgba(184,135,42,0.2)' }, checkBg: { background: 'rgba(184,135,42,0.15)', border: '1px solid rgba(184,135,42,0.3)' },
+    checkColor: T.gold, featureText: { color: 'rgba(232,197,106,0.65)' },
+    cta: { background: `linear-gradient(135deg,${T.gold},${T.goldLt})`, border: 'none', color: '#0A0806' },
+    ctaHover: { background: 'linear-gradient(135deg,#D4A030,#F0D070)', color: '#0A0806' },
+  },
 };
 
 function CheckIcon({ color }) {
-  return (
-    <svg width="8" height="8" viewBox="0 0 8 8" aria-hidden="true">
-      <polyline points="1,4 3,6 7,2" fill="none" stroke={color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
-  );
+  return (<svg width="8" height="8" viewBox="0 0 8 8"><polyline points="1,4 3,6 7,2" fill="none" stroke={color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>);
 }
 
 function StarIcon({ color }) {
-  return (
-    <svg width="7" height="7" viewBox="0 0 7 7" aria-hidden="true">
-      <polygon points="3.5,0.5 4.5,2.5 6.5,2.8 5,4.2 5.4,6.2 3.5,5.2 1.6,6.2 2,4.2 0.5,2.8 2.5,2.5" fill={color} />
-    </svg>
-  );
-}
-
-function FAQItem({ q, a }) {
-  const [open, setOpen] = useState(false);
-  return (
-    <div style={{ borderBottom: `1px solid ${T.mist}`, padding: '1.5rem 0' }}>
-      <button onClick={() => setOpen(!open)} style={{ width: '100%', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'none', border: 'none', cursor: 'pointer', padding: 0, textAlign: 'left' }}>
-        <span style={{ fontFamily: T.sans, fontWeight: 700, fontSize: 14, color: T.ink }}>{q}</span>
-        {open ? <Minus size={16} color={T.gold} /> : <Plus size={16} color={T.gold} />}
-      </button>
-      {open && <div style={{ marginTop: '1rem', fontSize: 13, color: '#6B6050', lineHeight: 1.6, fontFamily: T.sans }}>{a}</div>}
-    </div>
-  );
+  return (<svg width="7" height="7" viewBox="0 0 7 7"><polygon points="3.5,0.5 4.5,2.5 6.5,2.8 5,4.2 5.4,6.2 3.5,5.2 1.6,6.2 2,4.2 0.5,2.8 2.5,2.5" fill={color}/></svg>);
 }
 
 function PriceDisplay({ plan, yearly }) {
   const fmt = (n) => n.toLocaleString('th-TH');
   const theme = cardThemes[plan.variant];
   if (!plan.monthlyPrice) {
-    return (
-      <div style={{ marginBottom: '1.5rem' }}>
-        <div style={{ fontFamily: T.serif, fontSize: 56, fontWeight: 600, lineHeight: 1, ...theme.priceMain }}>Free</div>
-        <div style={{ fontSize: 11, fontWeight: 400, marginTop: 4, ...theme.priceUnit }}>ไม่มีค่าใช้จ่าย</div>
-      </div>
-    );
+    return (<div style={{ marginBottom: '1.5rem' }}><div style={{ fontFamily: T.serif, fontSize: 52, fontWeight: 600, lineHeight: 1, ...theme.priceMain }}>Free</div><div style={{ fontSize: 11, fontFamily: T.sans, fontWeight: 400, marginTop: 4, ...theme.priceUnit }}>ไม่มีค่าใช้จ่าย</div></div>);
   }
-  const monthly = yearly ? Math.round(plan.monthlyPrice * 12 * 0.8) : plan.monthlyPrice;
-  const altText = yearly ? `ประหยัด ฿${fmt(Math.round(plan.monthlyPrice * 12 * 0.2))} / ปี` : `฿${fmt(plan.monthlyPrice * 12)} / ปี`;
-  return (
-    <div style={{ marginBottom: '1.5rem' }}>
-      <div style={{ fontFamily: T.serif, fontSize: 56, fontWeight: 600, lineHeight: 1, ...theme.priceMain }}>฿{fmt(monthly)}</div>
-      <div style={{ fontSize: 11, fontWeight: 400, marginTop: 4, ...theme.priceUnit }}>{yearly ? 'ต่อปี' : 'ต่อเดือน'}</div>
-      <div style={{ fontSize: 12, fontWeight: 700, marginTop: 3, ...theme.priceAlt }}>{altText}</div>
-    </div>
-  );
+  const price = yearly ? Math.round(plan.monthlyPrice * 12 * 0.8) : plan.monthlyPrice;
+  return (<div style={{ marginBottom: '1.5rem' }}><div style={{ fontFamily: T.serif, fontSize: 52, fontWeight: 600, lineHeight: 1, ...theme.priceMain }}>฿{fmt(price)}</div><div style={{ fontSize: 11, fontFamily: T.sans, fontWeight: 400, marginTop: 4, ...theme.priceUnit }}>{yearly ? 'ต่อปี' : 'ต่อเดือน'}</div></div>);
 }
 
-function PlanCard({ plan, yearly, onSelect }) {
+function PlanCard({ plan, yearly, onSelect, loading, isLoggedIn }) {
   const [hovered, setHovered] = useState(false);
   const theme = cardThemes[plan.variant];
   const badge = badgeStyles[plan.badgeVariant];
-  return (
-    <div onMouseEnter={() => setHovered(true)} onMouseLeave={() => setHovered(false)} style={{ borderRadius: 16, padding: '1.25rem 1.5rem', position: 'relative', overflow: 'hidden', cursor: 'default', transition: 'transform 0.25s', transform: hovered ? 'translateY(-3px)' : 'translateY(0)', ...theme.card }}>
-      <div style={{ display: 'inline-flex', alignItems: 'center', gap: 4, fontSize: 9, fontWeight: 700, letterSpacing: '0.2em', textTransform: 'uppercase', padding: '3px 10px', borderRadius: 20, marginBottom: '0.75rem', ...badge }}>
-        <StarIcon color={plan.badgeVariant === 'best' ? T.goldLt : plan.badgeVariant === 'popular' ? T.gold : T.fog} />
-        {plan.badge}
-      </div>
-      <p style={{ fontFamily: T.sans, fontSize: 11, fontWeight: 700, letterSpacing: '0.2em', textTransform: 'uppercase', marginBottom: '0.5rem', ...theme.planName }}>{plan.name}</p>
-      <PriceDisplay plan={plan} yearly={yearly} />
-      <div style={{ height: 1, marginBottom: '1rem', ...theme.divider }} />
-      <ul style={{ listStyle: 'none', marginBottom: '1.25rem', display: 'flex', flexDirection: 'column', gap: 6 }}>
-        {plan.features.map((f, i) => (
-          <li key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: 9, fontSize: 12, lineHeight: 1.2 }}>
-            <span style={{ width: 14, height: 14, borderRadius: '50%', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', marginTop: 1, ...theme.checkBg }}><CheckIcon color={theme.checkColor} /></span>
-            <span style={theme.featureText}>{f}</span>
-          </li>
-        ))}
-      </ul>
-      <button onClick={() => onSelect(plan.id)} style={{ width: '100%', padding: '10px', borderRadius: 10, fontFamily: T.sans, fontSize: 11, fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, transition: 'all 0.2s', ...theme.cta }}>
-        {plan.cta} <ArrowRight size={14} />
-      </button>
-    </div>
-  );
-}
+  const ctaLabel = loading ? 'โปรดรอ...' : isLoggedIn ? 'อัปเกรดตอนนี้' : plan.cta;
 
-function BillingToggle({ yearly, onToggle }) {
   return (
-    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 12, marginBottom: '2.5rem' }}>
-      <span style={{ fontFamily: T.sans, fontSize: 11, fontWeight: 700, letterSpacing: '0.08em', color: yearly ? T.fog : T.ink }}>รายเดือน</span>
-      <button onClick={onToggle} style={{ width: 40, height: 22, borderRadius: 11, background: T.ink, border: 'none', cursor: 'pointer', position: 'relative', flexShrink: 0 }}>
-        <div style={{ position: 'absolute', top: 3, left: 3, width: 16, height: 16, borderRadius: '50%', background: T.goldLt, transition: 'transform 0.25s', transform: yearly ? 'translateX(18px)' : 'translateX(0)' }} />
-      </button>
-      <span style={{ fontFamily: T.sans, fontSize: 11, fontWeight: 700, letterSpacing: '0.08em', color: yearly ? T.ink : T.fog }}>รายปี</span>
-      <span style={{ fontFamily: T.sans, fontSize: 10, fontWeight: 700, background: 'rgba(184,135,42,0.12)', color: T.goldDk, border: '1px solid rgba(184,135,42,0.25)', borderRadius: 20, padding: '2px 8px' }}>ประหยัด 20%</span>
+    <div onMouseEnter={() => setHovered(true)} onMouseLeave={() => setHovered(false)} style={{ borderRadius: 16, padding: '1.25rem 1.5rem', position: 'relative', overflow: 'hidden', transition: 'all 0.25s', transform: hovered ? 'translateY(-4px)' : 'translateY(0)', ...theme.card }}>
+      <div style={{ position: 'absolute', top: 14, right: 16, fontFamily: T.serif, fontSize: 48, fontStyle: 'italic', fontWeight: 300, lineHeight: 1, pointerEvents: 'none', userSelect: 'none', ...theme.tier }}>{plan.tier}</div>
+      <div style={{ display: 'inline-flex', alignItems: 'center', gap: 5, fontSize: 9, fontFamily: T.sans, fontWeight: 700, letterSpacing: '.2em', textTransform: 'uppercase', padding: '3px 10px', borderRadius: 20, marginBottom: '0.75rem', ...badge }}><StarIcon color={T.goldLt}/> {plan.badge}</div>
+      <p style={{ fontFamily: T.sans, fontSize: 11, fontWeight: 700, letterSpacing: '.2em', textTransform: 'uppercase', marginBottom: '0.5rem', ...theme.planName }}>{plan.name}</p>
+      <PriceDisplay plan={plan} yearly={yearly}/>
+      <div style={{ height: 1, marginBottom: '1rem', ...theme.divider }}/>
+      <ul style={{ listStyle: 'none', marginBottom: '1.25rem', display: 'flex', flexDirection: 'column', gap: 8 }}>
+        {plan.features.map((f, i) => (<li key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: 9, fontSize: 12, lineHeight: 1.3 }}><span style={{ width: 14, height: 14, borderRadius: '50%', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', marginTop: 1, ...theme.checkBg }}><CheckIcon color={theme.checkColor}/></span><span style={theme.featureText}>{f}</span></li>))}
+      </ul>
+      <button disabled={loading} onClick={() => onSelect(plan.id)} onMouseEnter={e => { Object.assign(e.currentTarget.style, theme.ctaHover); }} onMouseLeave={e => { Object.assign(e.currentTarget.style, { background: theme.cta.background, color: theme.cta.color }); }} style={{ width: '100%', padding: '11px', borderRadius: 10, fontFamily: T.sans, fontSize: 11, fontWeight: 700, letterSpacing: '.12em', textTransform: 'uppercase', cursor: loading ? 'wait' : 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, transition: 'all .2s', opacity: loading ? 0.6 : 1, ...theme.cta }}>{ctaLabel} <ArrowRight size={14}/></button>
     </div>
   );
 }
 
 export default function Pricing() {
   const navigate = useNavigate();
-  const [yearly, setYearly] = useState(false);
-  const handleSelect = (planId) => navigate(`/signup?plan=${planId}&period=${yearly ? 'yearly' : 'monthly'}`);
+  const [yearly,  setYearly]  = useState(false);
+  const [loading, setLoading] = useState(false);
+
+  const token      = localStorage.getItem('token');
+  const userEmail  = localStorage.getItem('gt_user_email');
+  // 🚀 ตรวจสอบเข้มงวด ป้องกันค่า 'undefined' หลอกว่าเป็นผู้ใช้เก่า
+  const isLoggedIn = !!(token && token !== 'undefined' && userEmail && userEmail !== 'undefined');
+
+  const handleSelect = async (planId) => {
+    if (isLoggedIn) {
+      // ✅ ผู้ใช้เก่า: ยิงอัปเกรดแผนสมาชิกทันที
+      setLoading(true);
+      try {
+        await axios.post('http://localhost:3000/api/upgrade', { email: userEmail, plan: planId });
+        localStorage.setItem('gt_user_plan', planId);
+        navigate('/dashboard');
+        window.location.reload();
+      } catch {
+        alert('ไม่สามารถอัปเกรดแผนได้ (บัญชีนี้อาจไม่มีในระบบ)');
+      } finally {
+        setLoading(false);
+      }
+    } else {
+      // 🚀 ผู้ใช้ใหม่: เลือกแผนก่อนแล้วค่อยไปหน้าสมัคร
+      navigate(`/signup?plan=${planId}&period=${yearly ? 'yearly' : 'monthly'}`);
+    }
+  };
 
   return (
-    <div style={{ fontFamily: T.sans, background: T.paper, color: T.ink, minHeight: '100vh', padding: '3rem 1.5rem 4rem', position: 'relative', overflow: 'hidden' }}>
-      
-      {/* 🚀 ปุ่มย้อนกลับมุมซ้ายบน */}
-      <button
-        onClick={() => navigate(-1)}
-        style={{
-          position: 'absolute', top: '2rem', left: '2rem', display: 'flex', alignItems: 'center', gap: '4px',
-          background: 'none', border: 'none', cursor: 'pointer', color: T.ink,
-          fontFamily: T.sans, fontSize: '11px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em',
-          zIndex: 10, transition: 'transform 0.2s ease',
-        }}
-        onMouseEnter={(e) => e.currentTarget.style.transform = 'translateX(-4px)'}
-        onMouseLeave={(e) => e.currentTarget.style.transform = 'translateX(0)'}
-      >
-        <ChevronLeft size={16} color={T.gold} strokeWidth={2.5} />
-        Back
-      </button>
+    <div style={{ fontFamily: T.sans, background: T.ink, color: T.paper, minHeight: '100vh', padding: '3rem 1.5rem 5rem', position: 'relative', overflowX: 'hidden' }}>
+      <div style={{ position: 'fixed', top: 0, left: '50%', transform: 'translateX(-50%)', width: 700, height: 350, borderRadius: '50%', background: 'radial-gradient(ellipse, rgba(184,135,42,.09) 0%, transparent 70%)', filter: 'blur(60px)', pointerEvents: 'none' }}/>
+      <button onClick={() => navigate(-1)} style={{ position: 'absolute', top: '2rem', left: '2rem', background: 'rgba(255,255,255,.04)', border: '1px solid rgba(255,255,255,.08)', borderRadius: 8, cursor: 'pointer', color: 'rgba(250,247,240,.5)', fontSize: 11, fontFamily: T.sans, fontWeight: 700, display: 'flex', alignItems: 'center', gap: 4, padding: '7px 14px', transition: 'all .2s' }}> <ChevronLeft size={14}/> Back </button>
 
-      <div style={{ position: 'fixed', top: 0, left: '50%', transform: 'translateX(-50%)', width: 700, height: 280, pointerEvents: 'none', background: 'radial-gradient(ellipse, rgba(184,135,42,0.08) 0%, transparent 70%)' }} />
-
-      <div style={{ position: 'relative', maxWidth: 820, margin: '0 auto' }}>
-        {/* Eyebrow */}
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 12, marginBottom: '2rem' }}>
-          <div style={{ width: 32, height: 1, background: T.gold }} />
-          <span style={{ fontFamily: T.sans, fontSize: 15, fontWeight: 700, letterSpacing: '0.3em', textTransform: 'uppercase', color: T.gold }}>เลือกแผนของคุณ</span>
-          <div style={{ width: 32, height: 1, background: T.gold }} />
+      <div style={{ maxWidth: 840, margin: '0 auto', position: 'relative' }}>
+        <div style={{ textAlign: 'center', marginBottom: '3rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, marginBottom: 16 }}>
+            <div style={{ width: 28, height: 1, background: T.gold }}/>
+            <span style={{ fontFamily: T.sans, fontSize: 9, fontWeight: 700, letterSpacing: '.3em', textTransform: 'uppercase', color: T.gold }}>Membership Plans</span>
+            <div style={{ width: 28, height: 1, background: T.gold }}/>
+          </div>
+          <h1 style={{ fontFamily: T.serif, fontSize: 'clamp(36px,6vw,56px)', fontStyle: 'italic', fontWeight: 300, color: '#FAF7F0', margin: '0 0 10px', lineHeight: 1.15 }}> เลือกแผนที่ <span style={{ background: 'linear-gradient(135deg,#B8872A,#E8C56A)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>ดีที่สุด</span> </h1>
+          <p style={{ color: 'rgba(250,247,240,.35)', fontSize: 13, fontFamily: T.sans }}> ราคาทองคำ Real-time สำหรับทุกระดับการลงทุน </p>
+          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 12, marginTop: 24, background: 'rgba(255,255,255,.04)', border: '1px solid rgba(255,255,255,.08)', borderRadius: 40, padding: '6px 16px' }}>
+            <span style={{ fontFamily: T.sans, fontSize: 11, fontWeight: 700, color: !yearly ? '#FAF7F0' : 'rgba(250,247,240,.35)', transition: 'color .2s' }}>รายเดือน</span>
+            <div onClick={() => setYearly(y => !y)} style={{ width: 40, height: 22, borderRadius: 11, cursor: 'pointer', background: yearly ? `linear-gradient(135deg,${T.gold},${T.goldLt})` : 'rgba(255,255,255,.1)', position: 'relative', transition: 'background .25s' }}><div style={{ position: 'absolute', top: 3, left: yearly ? 21 : 3, width: 16, height: 16, borderRadius: '50%', background: '#fff', transition: 'left .25s', boxShadow: '0 1px 4px rgba(0,0,0,.3)' }}/></div>
+            <span style={{ fontFamily: T.sans, fontSize: 11, fontWeight: 700, color: yearly ? T.goldLt : 'rgba(250,247,240,.35)', transition: 'color .2s' }}>รายปี</span>
+            {yearly && (<span style={{ fontFamily: T.sans, fontSize: 9, fontWeight: 800, letterSpacing: '.12em', textTransform: 'uppercase', background: 'rgba(184,135,42,.15)', color: T.gold, border: '1px solid rgba(184,135,42,.3)', borderRadius: 20, padding: '2px 8px' }}>ประหยัด 20%</span>)}
+          </div>
         </div>
 
-        {/* Headline */}
-        <div style={{ textAlign: 'center', marginBottom: '0.5rem' }}>
-          <span style={{ display: 'block', fontFamily: T.serif, fontSize: 'clamp(36px, 6vw, 54px)', fontWeight: 400, fontStyle: 'italic', lineHeight: 1, color: T.ink }}>ลงทุนใน</span>
-          <span style={{ display: 'block', fontFamily: T.sans, fontSize: 'clamp(36px, 6vw, 54px)', fontWeight: 800, lineHeight: 1, letterSpacing: '-0.03em', color: T.ink }}>ข้อมูลที่ดีที่สุด</span>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(240px,1fr))', gap: 12, marginBottom: '5rem' }}>
+          {PLANS.map(plan => ( <PlanCard key={plan.id} plan={plan} yearly={yearly} onSelect={handleSelect} loading={loading} isLoggedIn={isLoggedIn}/> ))}
         </div>
 
-        <p style={{ textAlign: 'center', fontSize: 15, color: T.ink, lineHeight: 1.6, maxWidth: 360, margin: '1rem auto 2.5rem' }}>ราคาทองคำ Real-time พร้อม Analytics ระดับมืออาชีพ</p>
-
-        <BillingToggle yearly={yearly} onToggle={() => setYearly(y => !y)} />
-
-        {/* Plan cards */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: 12 }}>
-          {PLANS.map(plan => (
-            <PlanCard key={plan.id} plan={plan} yearly={yearly} onSelect={handleSelect} />
-          ))}
-        </div>
-
-        {/* Compare Features Section */}
-        <div style={{ marginTop: '6rem', textAlign: 'center' }}>
-          <h3 style={{ fontFamily: T.serif, fontSize: 32, marginBottom: '2.5rem', fontWeight: 600 }}>Compare Features</h3>
-          <div style={{ overflowX: 'auto', borderRadius: 12, border: `1px solid ${T.mist}`, background: '#FFF' }}>
-            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12, textAlign: 'left' }}>
+        <div>
+          <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, marginBottom: 10 }}> <div style={{ width: 20, height: 1, background: T.gold }}/> <span style={{ fontFamily: T.sans, fontSize: 9, fontWeight: 700, letterSpacing: '.3em', textTransform: 'uppercase', color: T.gold }}>Compare</span> <div style={{ width: 20, height: 1, background: T.gold }}/> </div>
+            <h3 style={{ fontFamily: T.serif, fontSize: 32, fontStyle: 'italic', fontWeight: 300, color: '#FAF7F0', margin: 0 }}> Feature Comparison </h3>
+          </div>
+          <div style={{ borderRadius: 14, border: '1px solid rgba(255,255,255,.07)', overflow: 'hidden' }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12 }}>
               <thead>
-                <tr style={{ background: T.cream, color: T.goldDk, textTransform: 'uppercase', letterSpacing: '0.1em' }}>
-                  <th style={{ padding: '16px 20px' }}>Capabilities</th>
-                  <th>Basic</th>
-                  <th>Silver</th>
-                  <th>Gold</th>
+                <tr style={{ background: 'rgba(255,255,255,.04)', borderBottom: '1px solid rgba(255,255,255,.07)' }}>
+                  {['Capabilities', 'Basic', 'Silver', 'Gold'].map((h, i) => ( <th key={h} style={{ padding: '14px 20px', fontFamily: T.sans, fontSize: 9, fontWeight: 700, letterSpacing: '.2em', textTransform: 'uppercase', color: i === 3 ? T.gold : 'rgba(250,247,240,.4)', textAlign: i === 0 ? 'left' : 'center' }}> {h} </th> ))}
                 </tr>
               </thead>
-              <tbody style={{ fontFamily: T.sans }}>
-                {COMPARISON_DATA.map((row, i) => (
-                  <tr key={i} style={{ borderBottom: `1px solid ${T.paper}` }}>
-                    <td style={{ padding: '16px 20px', fontWeight: 700, color: T.ink }}>{row.feature}</td>
-                    <td style={{ color: T.fog }}>{row.basic}</td>
-                    <td style={{ color: T.gold, fontWeight: 700 }}>{row.silver}</td>
-                    <td style={{ color: T.ink }}>{row.gold}</td>
-                  </tr>
-                ))}
-              </tbody>
+              <tbody style={{ fontFamily: T.sans }}>{COMPARISON_DATA.map((row, i) => (
+                <tr key={i} style={{ borderBottom: i < COMPARISON_DATA.length - 1 ? '1px solid rgba(255,255,255,.04)' : 'none' }}>
+                  <td style={{ padding: '14px 20px', fontFamily: T.sans, fontSize: 12, fontWeight: 700, color: 'rgba(250,247,240,.6)', textAlign: 'left' }}> {row.feature} </td>
+                  <td style={{ padding: '14px 20px', fontFamily: T.mono, fontSize: 11, color: 'rgba(250,247,240,.3)', textAlign: 'center' }}> {row.basic} </td>
+                  <td style={{ padding: '14px 20px', fontFamily: T.mono, fontSize: 11, color: 'rgba(250,247,240,.55)', textAlign: 'center', fontWeight: 700 }}> {row.silver} </td>
+                  <td style={{ padding: '14px 20px', fontFamily: T.mono, fontSize: 11, color: T.goldLt, textAlign: 'center', fontWeight: 700 }}> {row.gold} </td>
+                </tr>
+              ))}</tbody>
             </table>
           </div>
-        </div>
-
-        {/* FAQ Section
-        <div style={{ marginTop: '6rem', maxWidth: 600, margin: '6rem auto 0' }}>
-          <h3 style={{ fontFamily: T.serif, fontSize: 32, marginBottom: '2.5rem', textAlign: 'center', fontWeight: 600 }}>Common Questions</h3>
-          <div style={{ display: 'flex', flexDirection: 'column' }}>
-            {FAQ_DATA.map((faq, i) => (
-              <FAQItem key={i} q={faq.q} a={faq.a} />
-            ))}
-          </div>
-        </div> */}
-
-        {/* Trust strip */}
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', flexWrap: 'wrap', marginTop: '5rem' }}>
-          {TRUST_ITEMS.map((item, i) => (
-            <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '0 16px', borderLeft: i > 0 ? `1px solid ${T.mist}` : 'none', fontSize: 10, fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase', color: T.fog }}>
-              <span style={{ width: 5, height: 5, borderRadius: '50%', background: T.gold, opacity: 0.5, flexShrink: 0 }} />
-              {item.label}
-            </div>
-          ))}
         </div>
       </div>
     </div>

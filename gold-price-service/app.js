@@ -1,216 +1,102 @@
 const express = require('express');
+const cors = require('cors');
 const { generatePrice } = require('./services/simulation');
 
 const fs = require('fs');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
+
+const { readData, writeData } = require('./services/storage'); 
+
 const authMiddleware = require('./middlewares/auth');
-const authorizePlan = require('./middlewares/authorize');
 const rateLimitMiddleware = require('./middlewares/rateLimit');
 const analyticsRoutes = require('./routes/analytics');
 
 const app = express();
 const PORT = 3000;
-const { SECRET_KEY } = require('./config'); // กุญแจสำหรับเซ็นชื่อบัตร
+const { SECRET_KEY } = require('./config'); 
 
-app.use(express.json()); // สำหรับให้ Express อ่าน JSON body ได้
+app.use(cors());
+app.use(express.json()); 
 
-// --- Helper สำหรับจัดการ Users ---
 const getUsers = () => {
-    try {
-        const data = fs.readFileSync('./users.json', 'utf8');
-        // ถ้าไฟล์ว่าง (data.trim() === "") ให้คืนค่า []
-        return data.trim() ? JSON.parse(data) : [];
-    } catch (error) {
-        // ถ้าอ่านไฟล์ไม่ได้ หรือ JSON พัง ให้คืนค่า [] และอาจจะ log ดูว่าเกิดอะไรขึ้น
-        console.error("Error reading users.json, returning empty array:", error.message);
-        return [];
-    }
+  try {
+    const data = fs.readFileSync('./users.json', 'utf8');
+    return data.trim() ? JSON.parse(data) : [];
+  } catch (error) { return []; }
 };
 
 const saveUsers = (users) => {
-    try {
-        fs.writeFileSync('./users.json', JSON.stringify(users, null, 2));
-    } catch (error) {
-        console.error("Error saving users.json:", error.message);
-    }
+  try { fs.writeFileSync('./users.json', JSON.stringify(users, null, 2)); }
+  catch (error) { console.error("Error saving users.json:", error.message); }
 };
 
 // --- API Signup ---
 app.post('/api/signup', async (req, res) => {
-    const { username, password, plan } = req.body;
-    const users = getUsers();
+  const { username, email, password, plan } = req.body;
+  const users = getUsers();
+  if (users.find(u => u.username === username || u.email === email)) {
+    return res.status(400).json({ status: "error", message: "User already exists" });
+  }
 
-    // --- เพิ่มส่วนเช็คระดับที่อนุญาต ---
-    const allowedPlans = ['basic', 'silver', 'gold'];
-    // ถ้าส่ง plan มา แต่ไม่อยู่ใน 3 ชื่อนี้ ให้ปัดตกไปเป็น 'basic' ทั้งหมด
-    const finalPlan = allowedPlans.includes(plan) ? plan : 'basic';
-
-    if (users.find(u => u.username === username)) {
-        return res.status(400).json({ status: "error", message: "User already exists" });
-    }
-
-    const hashedPassword = await bcrypt.hash(password, 10);
-    const newUser = { username, password: hashedPassword, plan: finalPlan };
-    users.push(newUser);
-    saveUsers(users);
-
-    res.status(201).json({ status: "success", message: "User created!" });
+  const hashedPassword = await bcrypt.hash(password, 10);
+  const newUser = { 
+    username, email, password: hashedPassword, plan: plan || 'basic',
+    apiKey: `gt_live_${Math.random().toString(36).substr(2, 9)}` 
+  };
+  users.push(newUser);
+  saveUsers(users);
+  res.status(201).json({ status: "success", message: "User created!" });
 });
 
-// ---  API Login ---
+// --- API Login ---
 app.post('/api/login', async (req, res) => {
-    const { username, password } = req.body;
-    const users = getUsers();
-    const user = users.find(u => u.username === username);
+  const { username, password } = req.body;
+  const users = getUsers();
+  const user = users.find(u => u.username === username || u.email === username);
 
-    if (user && await bcrypt.compare(password, user.password)) {
-        const token = jwt.sign(
-            { username: user.username, plan: user.plan }, 
-            SECRET_KEY, 
-            { expiresIn: '1h' }
-        );
-        res.json({ status: "success", token });
-    } else {
-        res.status(401).json({ status: "error", code: 401, message: "Invalid credentials" });
-    }
-});
-
-// เริ่มการทำงาน: สุ่มราคาทุกๆ 10 วินาที (10000 มิลลิวินาที)
-console.log("Starting gold price simulation...");
-setInterval(async () => {
-    await generatePrice();
-}, 10000);
-
-// Endpoint ทดสอบ
-app.get('/api/gold', 
-    authMiddleware,         // ด่าน 1: ตรวจบัตร (เอา username ออกมา)
-    rateLimitMiddleware,    // ด่าน 2: ตรวจโควต้า (อิงตาม plan ในบัตร)
-    (req, res) => {
-        const { readData } = require('./services/storage');
-        res.json({
-            status: "success",
-            user: req.user.username, 
-            plan: req.userPlan, // โชว์ว่าคนนี้คือ basic, silver หรือ gold
-            data: readData()
-        });
-    }
-);
-
-app.use('/api/analytics', analyticsRoutes);
-
-/**
- * ✅ POST /prices
- */
-app.post('/prices', (req, res) => {
-  try {
-    const newData = req.body;
-
-    if (!validate(newData)) {
-      return res.status(400).json({
-        status: "error",
-        code: 400,
-        message: 'ต้องมี price และ timestamp'
-      });
-    }
-
-    const data = readData();
-    data.push(newData);
-    writeData(data);
-
-    const responseData = {
-      id: `gold-${data.length.toString().padStart(3, '0')}`,
-      price: newData.price,
-      trend: data.length > 1 ? (newData.price > data[data.length - 2].price ? 'up' : 'down') : 'up',
-      timestamp: newData.timestamp,
-      source: 'Simulation-A'
-    };
-
-    res.status(201).json({
+  if (user && await bcrypt.compare(password, user.password)) {
+    const token = jwt.sign({ username: user.username, plan: user.plan }, SECRET_KEY, { expiresIn: '1h' });
+    res.json({
       status: "success",
-      data: responseData
+      token,
+      user: { username: user.username, email: user.email, plan: user.plan, apiKey: user.apiKey }
     });
-
-  } catch (err) {
-    res.status(err.status || 500).json({
-      status: "error",
-      code: err.status || 500,
-      message: err.message || 'Internal Server Error'
-    });
+  } else {
+    res.status(401).json({ status: "error", message: "Invalid credentials" });
   }
 });
 
-/**
- * ✅ GET /prices/latest
- */
+// --- API Upgrade ---
+app.post('/api/upgrade', (req, res) => {
+  const { email, plan } = req.body;
+  const users = getUsers();
+  const userIndex = users.findIndex(u => u.email === email);
+
+  if (userIndex !== -1) {
+    users[userIndex].plan = plan;
+    saveUsers(users);
+    res.json({ status: "success", message: "Plan upgraded successfully" });
+  } else {
+    res.status(404).json({ status: "error", message: "User not found" });
+  }
+});
+
+// --- Gold Price Routes ---
+setInterval(async () => { await generatePrice(); }, 10000);
+
 app.get('/prices/latest', (req, res) => {
   try {
     const data = readData();
-
-    if (data.length === 0) {
-      return res.status(404).json({
-        status: "error",
-        code: 404,
-        message: 'ไม่มีข้อมูล'
-      });
-    }
-
+    if (data.length === 0) return res.status(404).json({ status: "error", message: 'ไม่มีข้อมูล' });
     const latest = data[data.length - 1];
-    const previous = data.length > 1 ? data[data.length - 2] : null;
-
-    const responseData = {
-      id: `gold-${data.length.toString().padStart(3, '0')}`,
-      price: latest.price,
-      trend: previous ? (latest.price > previous.price ? 'up' : 'down') : 'up',
-      timestamp: latest.timestamp,
-      source: 'Simulation-A'
-    };
-
-    res.json({
-      status: "success",
-      data: responseData
-    });
-
-  } catch (err) {
-    res.status(err.status || 500).json({
-      status: "error",
-      code: err.status || 500,
-      message: err.message || 'Internal Server Error'
-    });
-  }
+    res.json({ status: "success", data: { price: latest.price, timestamp: latest.timestamp } });
+  } catch (err) { res.status(500).json({ status: "error", message: 'Internal Server Error' }); }
 });
 
-/**
- * ✅ GET /prices/history
- */
 app.get('/prices/history', (req, res) => {
-  try {
-    const data = readData();
-
-    const responseData = data.map((item, index) => {
-      const previous = index > 0 ? data[index - 1] : null;
-      return {
-        id: `gold-${(index + 1).toString().padStart(3, '0')}`,
-        price: item.price,
-        trend: previous ? (item.price > previous.price ? 'up' : 'down') : 'up',
-        timestamp: item.timestamp,
-        source: 'Simulation-A'
-      };
-    });
-
-    res.json({
-      status: "success",
-      data: responseData
-    });
-
-  } catch (err) {
-    res.status(err.status || 500).json({
-      status: "error",
-      code: err.status || 500,
-      message: err.message || 'Internal Server Error'
-    });
-  }
+  try { res.json({ status: "success", data: readData() }); }
+  catch (err) { res.status(500).json({ status: "error", message: 'Internal Server Error' }); }
 });
-app.listen(PORT, () => {
-    console.log(`Gold WebService is running on port ${PORT}`);
-});
+
+app.listen(PORT, () => { console.log(`Gold WebService is running on port ${PORT}`); });

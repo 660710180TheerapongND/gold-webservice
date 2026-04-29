@@ -297,15 +297,12 @@ export default function Home() {
         padding:'0 1.5rem',
         display:'flex', alignItems:'center', justifyContent:'space-between', height:60,
       }}>
-        <span style={{ fontFamily:C.serif, fontSize:18, fontWeight:600, fontStyle:'italic', color:C.goldLt, letterSpacing:'.05em' }}>
+        <span style={{ fontFamily:C.serif, fontSize:18, fontWeight:600, fontStyle:'italic', color:C.goldLt, letterSpacing:'.05em', cursor:'pointer' }} onClick={() => navigate('/')}>
           Gold Tracker
         </span>
-        <div style={{ display:'flex', alignItems:'center', gap:32 }}>
-          {['Features','Pricing','Docs'].map(l => (
-            <a key={l} href={`#${l.toLowerCase()}`} className="gt-nav-link">{l}</a>
-          ))}
-        </div>
-        {/* 🚀 เพิ่มส่วนของปุ่ม Login และ เริ่มใช้งาน */}
+
+        
+
         <div style={{ display: 'flex', alignItems: 'center', gap: 24 }}>
           <button 
             className="gt-nav-link" 
@@ -435,7 +432,8 @@ export default function Home() {
               รองรับทั้งการดึงราคา Real-time และข้อมูลสถิติย้อนหลัง
             </p>
             <div style={{ display:'flex', flexDirection:'column', gap:10 }}>
-              {['/api/prices/latest','/api/prices/history','/api/analytics/summary'].map((ep, i) => (
+              {/* 🚀 ปรับ Path ให้ตรงกับ app.js (ตัด /api ออก) */}
+              {['/prices/latest','/prices/history','/api/gold'].map((ep, i) => (
                 <div key={i} style={{ display:'flex', alignItems:'center', gap:10 }}>
                   <span style={{ fontFamily:C.mono, fontSize:13, color:C.gold, background:'rgba(184,135,42,.08)', padding:'2px 8px', borderRadius:4 }}>GET</span>
                   <span style={{ fontFamily:C.mono, fontSize:15, color:'rgba(255,255,255,.5)' }}>{ep}</span>
@@ -452,7 +450,8 @@ export default function Home() {
               <span style={{ color:C.goldLt }}>fetch</span>
               <span style={{ color:'rgba(255,255,255,.7)' }}>({'\n'}
               {'  '}</span>
-              <span style={{ color:'#E07070' }}>'https://api.goldtracker.th/v1/prices'</span>
+              {/* 🚀 ปรับ URL ให้ตรงกับ Localhost */}
+              <span style={{ color:'#E07070' }}>'http://localhost:3000/prices/latest'</span>
               <span style={{ color:'rgba(255,255,255,.7)' }}>,{'\n'}
               {'  '}{'{'}{'\n'}
               {'    '}headers: {'{'}{'\n'}
@@ -475,14 +474,10 @@ export default function Home() {
               <span style={{ color:C.goldLt }}>"data"</span>
               <span style={{ color:'rgba(255,255,255,.5)' }}>: {'{'}{'\n'}
               {'    '}</span>
-              <span style={{ color:C.goldLt }}>"sellPrice"</span>
+              {/* 🚀 ปรับตัวแปรให้ตรงกับ Backend (ใช้ price แทน sellPrice) */}
+              <span style={{ color:C.goldLt }}>"price"</span>
               <span style={{ color:'rgba(255,255,255,.5)' }}>: </span>
               <span style={{ color:'#B5D4F4' }}>41150</span>
-              <span style={{ color:'rgba(255,255,255,.5)' }}>,{'\n'}
-              {'    '}</span>
-              <span style={{ color:C.goldLt }}>"buyPrice"</span>
-              <span style={{ color:'rgba(255,255,255,.5)' }}>: </span>
-              <span style={{ color:'#B5D4F4' }}>40950</span>
               <span style={{ color:'rgba(255,255,255,.5)' }}>,{'\n'}
               {'    '}</span>
               <span style={{ color:C.goldLt }}>"trend"</span>
