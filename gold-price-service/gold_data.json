@@ -54,5 +54,19 @@
     "trend": "up",
     "timestamp": "2026-04-29T12:53:36.269Z",
     "source": "SimulationService"
+  },
+  {
+    "id": "95a9d476-9585-42f5-827e-e738fb6d1441",
+    "price": 40462,
+    "trend": "up",
+    "timestamp": "2026-04-29T13:14:33.755Z",
+    "source": "SimulationService"
+  },
+  {
+    "id": "63a805fb-a023-4789-a693-dd6254aec909",
+    "price": 40802,
+    "trend": "up",
+    "timestamp": "2026-04-29T13:14:43.759Z",
+    "source": "SimulationService"
   }
 ]
