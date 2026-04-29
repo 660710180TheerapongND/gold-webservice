@@ -214,7 +214,6 @@ export default function Dashboard() {
   const syncStr = () =>
     'Last sync: ' + new Date().toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
 
-  // ─── State ─────────────────────────────────────────────────────────────────
   const [goldData,   setGoldData]   = useState({ sellPrice: 40850, buyPrice: 40750, trend: 'up', timestamp: new Date().toISOString() });
   const [analytics,  setAnalytics]  = useState({ min: 40000, max: 40850, avg: 40415 });
   const [history,    setHistory]    = useState(MOCK_HISTORY);
@@ -228,7 +227,6 @@ export default function Dashboard() {
   const [showModal,  setShowModal]  = useState(false);
   const intervalRef = useRef(null);
 
-  // ─── Inject CSS ─────────────────────────────────────────────────────────────
   useEffect(() => {
     const style = document.createElement('style');
     style.textContent = css;
@@ -236,7 +234,6 @@ export default function Dashboard() {
     return () => document.head.removeChild(style);
   }, []);
 
-  // ─── Save API Key ──────────────────────────────────────────────────────────
   const handleSaveKey = key => {
     setApiKey(key);
     localStorage.setItem('gt_api_key', key);
@@ -244,7 +241,6 @@ export default function Dashboard() {
     setError(null);
   };
 
-  // ─── Fetch จาก Backend จริง ────────────────────────────────────────────────
   const fetchData = useCallback(async () => {
     setLoading(true);
     try {
@@ -265,9 +261,9 @@ export default function Dashboard() {
         }));
         setHistory(formatted);
       }
-      setError(null); // ① ล้าง error เมื่อสำเร็จ
+      setError(null); 
     } catch (err) {
-      // ① จัดการ error แต่ละประเภท
+      
       const status = err.response?.status;
       if (status === 401 || status === 403) {
         setError('API Key ไม่ถูกต้องหรือหมดอายุ — กด "Auth" เพื่ออัปเดต');
@@ -282,7 +278,6 @@ export default function Dashboard() {
     }
   }, [apiKey]);
 
-  // ─── Init & auto-refresh ───────────────────────────────────────────────────
   useEffect(() => {
     setSyncTime(syncStr());
     // fetchData();  // ← uncomment เมื่อ Backend พร้อม
@@ -292,7 +287,6 @@ export default function Dashboard() {
     return () => clearInterval(intervalRef.current);
   }, [fetchData]);
 
-  // ─── Refresh handler (mock simulation) ────────────────────────────────────
   const handleRefresh = () => {
     setSpinning(true);
     setTimeout(() => setSpinning(false), 700);
