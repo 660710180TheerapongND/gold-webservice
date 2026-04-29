@@ -1,15 +1,16 @@
+// services/simulation.js
 const crypto = require('crypto');
-const { saveGoldData } = require('./storage');
+const { readData, writeData } = require('./storage'); // เรียกใช้ Module จัดการไฟล์
 
-// สมมติราคาเริ่มต้นที่ 40,000 บาท
+// กำหนดราคาเริ่มต้น
 let currentPrice = 40000; 
 
 async function generatePrice() {
-    // 1. สุ่มราคาใหม่ (ขึ้นหรือลงแบบสุ่ม - สมมติให้แกว่งทีละไม่เกิน 500 บาท)
-    const priceChange = Math.floor(Math.random() * 1001) - 500; 
+    // 1. สุ่มราคาใหม่ (สมมติให้แกว่งขึ้นลงไม่เกิน 500 บาทจากราคาเดิม)
+    const priceChange = Math.floor(Math.random() * 1001) - 500;
     const newPrice = currentPrice + priceChange;
 
-    // 2. คำนวณ Trend
+    // 2. Logic กำหนด Trend
     let currentTrend = 'stable';
     if (newPrice > currentPrice) {
         currentTrend = 'up';
@@ -17,35 +18,46 @@ async function generatePrice() {
         currentTrend = 'down';
     }
     
-    currentPrice = newPrice; // อัปเดตราคาล่าสุด
+    // อัปเดตราคาล่าสุด
+    currentPrice = newPrice; 
 
-    // 3. สร้าง Object ตามโครงสร้างที่กำหนด
+    // 3. จัดเตรียมข้อมูลตามโครงสร้าง Object ที่โจทย์กำหนด
     const goldDataPayload = {
-        id: crypto.randomUUID(), // สร้าง ID แบบสุ่ม (ต้องใช้ Node v16.7+)
+        id: crypto.randomUUID(), 
         price: newPrice,
         trend: currentTrend,
-        timestamp: new Date().toISOString(),
+        timestamp: new Date().toISOString(), // รูปแบบ ISO
         source: "SimulationService"
     };
 
-    // 4. บันทึกลงไฟล์ JSON 
-    saveGoldData(goldDataPayload);
-    console.log(`[Local Saved] Price: ${newPrice} | Trend: ${currentTrend}`);
-
-    // 5. ส่ง Webhook ไปหา Service ของภู (Gold Pricing)
+    // 4. บันทึกข้อมูลลงไฟล์ gold_data.json ผ่าน storage module
     try {
-        const phuServiceUrl = 'http://localhost:4000/api/webhook/gold'; // เปลี่ยนเป็น URL จริงของภู
-        const response = await fetch(phuServiceUrl, {
+        const currentData = readData();   // ดึงข้อมูลเดิมที่เป็น Array
+        currentData.push(goldDataPayload); // ดัน Object ใหม่เข้าไป
+        writeData(currentData);           // เซฟทับลงไฟล์
+        console.log(`[Saved] Price: ${newPrice} | Trend: ${currentTrend}`);
+    } catch (error) {
+        console.error("[Error] ไม่สามารถบันทึกข้อมูลลงไฟล์ได้:", error.message);
+    }
+
+    // 5. ส่งผ่าน Webhook ไปยัง Service ของภู
+    try {
+        const phuWebhookUrl = 'http://localhost:4000/api/webhook/gold'; // เปลี่ยนเป็น URL จริง
+        const response = await fetch(phuWebhookUrl, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: { 
+                'Content-Type': 'application/json'
+            },
             body: JSON.stringify(goldDataPayload)
         });
         
         if (response.ok) {
-            console.log(`[Webhook Sent] Successfully sent data to Phu's service.`);
+            console.log(`[Webhook] ส่งข้อมูลให้ภูสำเร็จ!`);
+        } else {
+            console.log(`[Webhook] ส่งสำเร็จแต่ Service ปลายทางตอบกลับ Error: ${response.status}`);
         }
     } catch (error) {
-        console.error(`[Webhook Failed] Could not reach Phu's service:`, error.message);
+        console.error(`[Webhook] ส่งข้อมูลล้มเหลว (ปลายทางอาจจะยังไม่เปิด Service):`, error.message);
     }
 }
 
