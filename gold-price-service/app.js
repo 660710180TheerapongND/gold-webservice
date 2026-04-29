@@ -14,8 +14,12 @@ setInterval(async () => {
 
 // Endpoint พื้นฐานสำหรับทดสอบ Service ของเราเอง
 app.get('/api/gold', (req, res) => {
-    const { readGoldData } = require('./services/storage');
-    res.json(readGoldData());
+    const { readData } = require('./services/storage'); // เปลี่ยนชื่อเป็น readData
+    try {
+        res.json(readData());
+    } catch (error) {
+        res.status(500).json({ error: "Cannot read data" });
+    }
 });
 
 app.listen(PORT, () => {
