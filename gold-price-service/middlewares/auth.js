@@ -1,5 +1,5 @@
 const jwt = require('jsonwebtoken');
-const SECRET_KEY = "SECRET_KEY"; // กุญแจสำหรับเซ็นชื่อบัตร
+const { SECRET_KEY } = require('../config'); // ดึงมาจากไฟล์ config
 
 const authMiddleware = (req, res, next) => {
     // 1. ดึง Token จาก Header "Authorization: Bearer <token>"

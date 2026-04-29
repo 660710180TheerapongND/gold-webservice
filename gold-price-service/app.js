@@ -11,13 +11,30 @@ const analyticsRoutes = require('./routes/analytics');
 
 const app = express();
 const PORT = 3000;
-const SECRET_KEY = "SECRET_KEY"; // กุญแจสำหรับเซ็นชื่อบัตร
+const { SECRET_KEY } = require('./config'); // กุญแจสำหรับเซ็นชื่อบัตร
 
 app.use(express.json()); // สำหรับให้ Express อ่าน JSON body ได้
 
 // --- Helper สำหรับจัดการ Users ---
-const getUsers = () => JSON.parse(fs.readFileSync('./users.json', 'utf8') || '[]');
-const saveUsers = (users) => fs.writeFileSync('./users.json', JSON.stringify(users, null, 2));
+const getUsers = () => {
+    try {
+        const data = fs.readFileSync('./users.json', 'utf8');
+        // ถ้าไฟล์ว่าง (data.trim() === "") ให้คืนค่า []
+        return data.trim() ? JSON.parse(data) : [];
+    } catch (error) {
+        // ถ้าอ่านไฟล์ไม่ได้ หรือ JSON พัง ให้คืนค่า [] และอาจจะ log ดูว่าเกิดอะไรขึ้น
+        console.error("Error reading users.json, returning empty array:", error.message);
+        return [];
+    }
+};
+
+const saveUsers = (users) => {
+    try {
+        fs.writeFileSync('./users.json', JSON.stringify(users, null, 2));
+    } catch (error) {
+        console.error("Error saving users.json:", error.message);
+    }
+};
 
 // --- API Signup ---
 app.post('/api/signup', async (req, res) => {
