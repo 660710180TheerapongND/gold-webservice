@@ -6,8 +6,8 @@
 const authorizePlan = (allowedPlans) => {
     return (req, res, next) => {
         // 1. ตรวจสอบว่ามีข้อมูล Plan มาจาก authMiddleware หรือยัง
-        const userPlan = req.userPlan;
-
+        const userPlan = req.userPlan || (req.user && req.user.plan);
+        
         if (!userPlan) {
             return res.status(403).json({
                 status: "error",
