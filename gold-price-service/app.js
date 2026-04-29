@@ -7,6 +7,7 @@ const bcrypt = require('bcryptjs');
 const authMiddleware = require('./middlewares/auth');
 const authorizePlan = require('./middlewares/authorize');
 const rateLimitMiddleware = require('./middlewares/rateLimit');
+const analyticsRoutes = require('./routes/analytics');
 
 const app = express();
 const PORT = 3000;
@@ -78,6 +79,8 @@ app.get('/api/gold',
         });
     }
 );
+
+app.use('/api/analytics', analyticsRoutes);
 
 app.listen(PORT, () => {
     console.log(`Gold WebService is running on port ${PORT}`);
