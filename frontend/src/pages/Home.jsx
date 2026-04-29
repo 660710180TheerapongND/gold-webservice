@@ -305,9 +305,19 @@ export default function Home() {
             <a key={l} href={`#${l.toLowerCase()}`} className="gt-nav-link">{l}</a>
           ))}
         </div>
-        <button className="gt-btn-gold" style={{ padding:'9px 20px', fontSize:10 }} onClick={() => navigate('/pricing')}>
-          เริ่มใช้งาน <ArrowRight size={13} />
-        </button>
+        {/* 🚀 เพิ่มส่วนของปุ่ม Login และ เริ่มใช้งาน */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 24 }}>
+          <button 
+            className="gt-nav-link" 
+            style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
+            onClick={() => navigate('/login')}
+          >
+            เข้าสู่ระบบ
+          </button>
+          <button className="gt-btn-gold" style={{ padding:'9px 20px', fontSize:10 }} onClick={() => navigate('/pricing')}>
+            เริ่มใช้งาน <ArrowRight size={13} />
+          </button>
+        </div>
       </nav>
 
       <TickerBar />

@@ -1,116 +1,235 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
+// เพิ่มการนำเข้า Eye และ EyeOff
+import { Eye, EyeOff, ShieldCheck, ArrowRight } from 'lucide-react';
 
+// ─── DESIGN TOKENS ───────────────────────────────────────────────────
+const C = {
+  bg:      '#0A0906',
+  surface: '#110F0B',
+  gold:    '#C49A3C',
+  goldLt:  '#F0C96E',
+  goldDk:  '#7A5C1A',
+  smoke:   'rgba(240, 201, 110, 0.06)',
+  border:  'rgba(196, 154, 60, 0.18)',
+  muted:   'rgba(255,255,255,0.28)',
+  text:    '#F5EDD6',
+  serif:    "'Cormorant Garamond', serif",
+  sans:     "'DM Sans', sans-serif",
+  mono:     "'DM Mono', monospace",
+};
+
+const PLANS = {
+  basic:   { label: 'Basic',    price: 0,    color: '#888',    perks: ['Real-time gold feed', '3 alerts/day'] },
+  silver:  { label: 'Silver',   price: 499,  color: '#C0C0C0', perks: ['Advanced charts', 'Unlimited alerts', 'Priority support'] },
+  gold:    { label: 'Gold',     price: 999,  color: C.goldLt,  perks: ['Full institution access', 'API access', 'White-glove onboarding'] },
+};
+
+// ─── SUB-COMPONENTS ──────────────────────────────────────────────────
+function FloatInput({ label, name, type = 'text', value, onChange }) {
+  const [focused, setFocused] = useState(false);
+  const [visible, setVisible] = useState(false);
+  const isPass = name.toLowerCase().includes('password');
+  const filled = value.length > 0;
+  const active = focused || filled;
+  const inputType = isPass ? (visible ? 'text' : 'password') : type;
+
+  return (
+    <div style={{ position: 'relative', marginBottom: '18px' }}>
+      <label style={{
+        position: 'absolute',
+        left: '12px',
+        // แก้ไข: ให้ Label ลอยสูงขึ้นและมีพื้นหลังเพื่อไม่ให้เส้นขอบบัง
+        top: active ? '0px' : '50%',
+        transform: 'translateY(-50%)',
+        backgroundColor: active ? (focused ? '#16140F' : C.surface) : 'transparent',
+        padding: active ? '0 6px' : '0',
+        
+        fontSize: active ? '10px' : '14px',
+        fontFamily: C.sans,
+        fontWeight: 600,
+        letterSpacing: active ? '0.12em' : '0.02em',
+        textTransform: active ? 'uppercase' : 'none',
+        color: focused ? C.goldLt : C.muted,
+        transition: 'all 0.22s cubic-bezier(0.4,0,0.2,1)',
+        pointerEvents: 'none',
+        zIndex: 2,
+      }}>
+        {label}
+      </label>
+
+      <input
+        name={name}
+        type={inputType}
+        value={value}
+        onChange={onChange}
+        onFocus={() => setFocused(true)}
+        onBlur={() => setFocused(false)}
+        required
+        style={{
+          width: '100%',
+          background: focused ? 'rgba(196,154,60,0.05)' : C.smoke,
+          border: `1px solid ${focused ? C.gold : C.border}`,
+          borderRadius: '10px',
+          color: C.text,
+          fontFamily: C.sans,
+          fontSize: '15px',
+          padding: active ? '22px 48px 10px 16px' : '16px 48px 16px 16px',
+          outline: 'none',
+          transition: 'all 0.2s ease',
+          boxSizing: 'border-box',
+          caretColor: C.goldLt,
+        }}
+      />
+
+      {isPass && (
+        <button
+          type="button"
+          onClick={() => setVisible(v => !v)}
+          style={{
+            position: 'absolute',
+            right: '14px',
+            top: '50%',
+            transform: 'translateY(-50%)',
+            background: 'none',
+            border: 'none',
+            cursor: 'pointer',
+            color: focused ? C.goldLt : C.muted,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: '4px',
+            transition: 'color 0.2s',
+            zIndex: 3
+          }}
+        >
+          {/* เปลี่ยนจากตัวหนังสือเป็นไอคอน */}
+          {visible ? <EyeOff size={18} /> : <Eye size={18} />}
+        </button>
+      )}
+    </div>
+  );
+}
+
+// ─── PLAN PILL ───
+function PlanPill({ planKey, plan, selected, isYearly, onClick }) {
+  const active = selected === planKey;
+  const displayPrice = plan.price === 0 
+    ? 'Free' 
+    : isYearly 
+      ? `฿${Math.round(plan.price * 12 * 0.8).toLocaleString()}` 
+      : `฿${plan.price}`;
+
+  return (
+    <button type="button" onClick={() => onClick(planKey)} style={{
+      flex: 1, padding: '10px 8px', borderRadius: '10px',
+      border: `1px solid ${active ? plan.color : C.border}`,
+      background: active ? `rgba(196,154,60, 0.1)` : 'transparent',
+      cursor: 'pointer', transition: 'all 0.2s', display: 'flex',
+      flexDirection: 'column', alignItems: 'center', gap: '4px',
+    }}>
+      <span style={{ fontSize: '11px', fontWeight: 700, color: active ? plan.color : C.muted, fontFamily: C.sans }}>{plan.label}</span>
+      <span style={{ fontSize: '9px', color: active ? plan.color : 'rgba(255,255,255,0.2)', fontFamily: C.mono }}>{displayPrice}</span>
+    </button>
+  );
+}
+
+// ─── MAIN SIGNUP ───
 export default function Signup() {
   const [searchParams] = useSearchParams();
-  const selectedPlan = searchParams.get('plan') || 'basic'; // ดึงค่า plan จาก URL
   const navigate = useNavigate();
 
-  // 1. เพิ่ม State สำหรับเก็บข้อมูลที่ User กรอก
-  const [formData, setFormData] = useState({
-    username: '',
-    password: '',
-    confirmPassword: ''
-  });
-  const [error, setError] = useState('');
+  const selectedPlan = searchParams.get('plan') || 'basic';
+  const period = searchParams.get('period') || 'monthly';
+  const isYearly = period === 'yearly';
 
-  // 2. ฟังก์ชันจัดการการเปลี่ยนแปลงใน Input
+  const [form, setForm] = useState({ username: '', email: '', password: '', confirmPassword: '' });
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [done, setDone] = useState(false);
+
   const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value
-    });
+    setForm(f => ({ ...f, [e.target.name]: e.target.value }));
+    if (error) setError('');
   };
 
-  // 3. ฟังก์ชันส่งข้อมูล (จะไปเชื่อมกับ API ของมิ้น)
-  const handleSubmit = (e) => {
+  const plan = PLANS[selectedPlan] || PLANS.basic;
+  const finalPriceLabel = plan.price === 0 
+    ? 'Free' 
+    : isYearly 
+      ? `฿${Math.round(plan.price * 12 * 0.8).toLocaleString()} / yr` 
+      : `฿${plan.price} / mo`;
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    setError('');
-
-    // ตรวจสอบว่ารหัสผ่านตรงกันไหม
-    if (formData.password !== formData.confirmPassword) {
-      setError('รหัสผ่านไม่ตรงกัน กรุณาตรวจสอบอีกครั้ง');
-      return;
-    }
-
-    // ข้อมูลที่จะส่งให้มิ้น (อ้างอิงจาก Logic ที่มิ้นวางไว้)
-    const signupData = {
-      username: formData.username,
-      password: formData.password,
-      plan: selectedPlan
-    };
-
-    console.log("Sending to Mint's Backend:", signupData);
-
-    // จำลองว่าสมัครสำเร็จ (เดี๋ยวค่อยใช้ axios ยิงไปที่ users.json ของมิ้น)
-    alert("สร้างบัญชีสำเร็จ! ยินดีต้อนรับสู่ครอบครัว Gold Tracker");
-    navigate('/login');
+    if (form.password !== form.confirmPassword) { setError('Passwords do not match.'); return; }
+    setLoading(true);
+    await new Promise(r => setTimeout(r, 1400));
+    setLoading(false);
+    setDone(true);
+    setTimeout(() => navigate('/login'), 1800);
   };
 
   return (
-    <div className="min-h-screen bg-[#EFEAD8] flex items-center justify-center p-4 font-sans">
-      <div className="w-full max-w-md bg-[#FDFAF4] rounded-2xl shadow-2xl overflow-hidden border border-orange-200/20 p-8">
-        <h2 className="font-serif text-3xl font-black text-[#1A1410] mb-2 uppercase tracking-tighter">Sign Up</h2>
+    <div style={{ minHeight: '100vh', background: C.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: C.sans, padding: '24px' }}>
+      <div style={{ width: '100%', maxWidth: '440px', position: 'relative', zIndex: 1 }}>
         
-        {/* แสดงแผนที่เลือกมา */}
-        <div className="mb-6 p-3 bg-orange-100/50 rounded-lg border border-orange-200/50">
-           <p className="text-[10px] font-bold text-[#8B6210] uppercase tracking-widest">Selected Plan</p>
-           <p className="text-lg font-black text-[#C8922A] uppercase">{selectedPlan}</p>
+        <div style={{ textAlign: 'center', marginBottom: '32px' }}>
+          <h1 style={{ fontFamily: C.serif, fontSize: '38px', fontStyle: 'italic', color: C.text, lineHeight: 1.1, marginBottom: '8px' }}>
+            Open your <span style={{ color: C.goldLt, fontWeight: 600 }}>Vault</span>
+          </h1>
+          <p style={{ color: C.muted, fontSize: '13px' }}>เริ่มต้นการวิเคราะห์ทองคำระดับสถาบัน</p>
         </div>
 
-        {/* แสดง Error ถ้ามี */}
-        {error && <p className="mb-4 text-xs text-red-500 font-bold italic">{error}</p>}
+        <div style={{ background: C.surface, borderRadius: '20px', border: `1px solid ${C.border}`, overflow: 'hidden', boxShadow: '0 24px 64px rgba(0,0,0,0.5)' }}>
+          
+          <div style={{ background: 'rgba(196,154,60,0.05)', borderBottom: `1px solid ${C.border}`, padding: '16px 20px 12px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '12px' }}>
+              <div>
+                <div style={{ fontSize: '9px', fontWeight: 700, color: C.gold, letterSpacing: '0.15em', textTransform: 'uppercase' }}>Selected Tier</div>
+                <div style={{ fontSize: '18px', fontWeight: 700, color: plan.color }}>{plan.label} {isYearly && '(Yearly)'}</div>
+              </div>
+              <div style={{ textAlign: 'right' }}>
+                <div style={{ fontSize: '14px', fontWeight: 700, color: C.text }}>{finalPriceLabel}</div>
+              </div>
+            </div>
+            <div style={{ display: 'flex', gap: '8px' }}>
+              {Object.entries(PLANS).map(([key, p]) => (
+                <PlanPill key={key} planKey={key} plan={p} selected={selectedPlan} isYearly={isYearly} onClick={(k) => navigate(`/signup?plan=${k}&period=${period}`)} />
+              ))}
+            </div>
+          </div>
+
+          <div style={{ padding: '28px 24px' }}>
+            {done ? (
+              <div style={{ textAlign: 'center', padding: '20px 0' }}>
+                <p style={{ color: C.text, fontFamily: C.serif, fontSize: '22px', fontStyle: 'italic' }}>Welcome Aboard</p>
+                <p style={{ color: C.muted, fontSize: '12px' }}>Redirecting to login…</p>
+              </div>
+            ) : (
+              <form onSubmit={handleSubmit}>
+                <FloatInput label="Username" name="username" value={form.username} onChange={handleChange} />
+                <FloatInput label="Email address" name="email" type="email" value={form.email} onChange={handleChange} />
+                <FloatInput label="Password" name="password" value={form.password} onChange={handleChange} />
+                <FloatInput label="Confirm password" name="confirmPassword" value={form.confirmPassword} onChange={handleChange} />
+
+                {error && <div style={{ color: '#e85d5d', fontSize: '12px', textAlign: 'center', marginBottom: '15px' }}>{error}</div>}
+
+                <button type="submit" disabled={loading} style={{
+                  width: '100%', padding: '15px', borderRadius: '12px', border: 'none',
+                  background: `linear-gradient(130deg, ${C.goldDk} 0%, ${C.gold} 50%, ${C.goldLt} 100%)`,
+                  color: '#0A0906', fontWeight: 800, fontSize: '13px', letterSpacing: '0.1em', textTransform: 'uppercase',
+                  cursor: loading ? 'wait' : 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px'
+                }}>
+                  {loading ? "Processing..." : "Create Account"} <ArrowRight size={16} />
+                </button>
+              </form>
+            )}
+          </div>
+        </div>
         
-        <form onSubmit={handleSubmit} className="space-y-4 text-left">
-          {/* Username */}
-          <div>
-            <label className="block text-[10px] font-bold uppercase tracking-widest text-[#8B6210] mb-1">Username</label>
-            <input 
-              name="username"
-              type="text" 
-              className="w-full bg-[#F5EDD8] border border-orange-200/30 rounded-lg p-3 outline-none focus:border-[#C8922A]" 
-              value={formData.username}
-              onChange={handleChange}
-              required 
-            />
-          </div>
-
-          {/* Password */}
-          <div>
-            <label className="block text-[10px] font-bold uppercase tracking-widest text-[#8B6210] mb-1">Password</label>
-            <input 
-              name="password"
-              type="password" 
-              className="w-full bg-[#F5EDD8] border border-orange-200/30 rounded-lg p-3 outline-none focus:border-[#C8922A]" 
-              value={formData.password}
-              onChange={handleChange}
-              required 
-            />
-          </div>
-
-          {/* Confirm Password (ที่สัญญาไว้ในคอมเมนต์) */}
-          <div>
-            <label className="block text-[10px] font-bold uppercase tracking-widest text-[#8B6210] mb-1">Confirm Password</label>
-            <input 
-              name="confirmPassword"
-              type="password" 
-              className="w-full bg-[#F5EDD8] border border-orange-200/30 rounded-lg p-3 outline-none focus:border-[#C8922A]" 
-              value={formData.confirmPassword}
-              onChange={handleChange}
-              required 
-            />
-          </div>
-
-          <button 
-            type="submit" 
-            className="w-full bg-[#C8922A] text-white py-4 rounded-xl font-black text-sm uppercase tracking-widest mt-4 hover:bg-[#A07020] transition-all shadow-lg active:scale-95"
-          >
-            สร้างบัญชีสมาชิก
-          </button>
-        </form>
-
-        <p className="mt-6 text-[10px] text-gray-400 uppercase tracking-widest text-center">
-          มีบัญชีอยู่แล้ว? <a href="/login" className="text-[#C8922A] font-bold underline">Log In</a>
+        <p style={{ textAlign: 'center', marginTop: '24px', color: 'rgba(255,255,255,0.3)', fontSize: '13px' }}>
+          มีบัญชีอยู่แล้ว? <a href="/login" style={{ color: C.goldLt, fontWeight: 600, textDecoration: 'none' }}>Sign In</a>
         </p>
       </div>
     </div>
