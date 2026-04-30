@@ -9,8 +9,8 @@ const PLAN_LIMIT = {
 };
 
 function rateLimitMiddleware(req, res, next) {
-    const apiKey = req.user.username; // ใช้ key เป็นตัวนับ
-    const plan = req.userPlan || 'basic'; // มาจาก auth
+    const apiKey = req.user.username; 
+    const plan = req.userPlan || 'basic'; 
 
     const MAX_REQUESTS = PLAN_LIMIT[plan];
 

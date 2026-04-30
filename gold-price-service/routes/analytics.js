@@ -1,8 +1,6 @@
-// routes/analytics.js
 const express = require('express');
 const router = express.Router();
 const { getSummary, filterData } = require('../services/analytics');
-// ดึง Middleware มาใช้งาน (ให้เอาออกตอนต่อกับโปรเจกต์จริง)
 const authMiddleware = require('../middlewares/auth');
 const rateLimitMiddleware = require('../middlewares/rateLimit');
 

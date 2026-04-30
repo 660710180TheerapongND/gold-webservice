@@ -1,5 +1,3 @@
-// middlewares/authorize.js
-
 /**
  * @param {string[]} allowedPlans - รายชื่อ Plan ที่อนุญาตให้ผ่าน
  */
@@ -25,7 +23,6 @@ const authorizePlan = (allowedPlans) => {
             });
         }
 
-        // 3. ถ้าผ่านเงื่อนไข ให้ไปต่อได้เลย!
         next();
     };
 };

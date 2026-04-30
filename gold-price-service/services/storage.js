@@ -1,15 +1,9 @@
-const fs = require('fs'); /*1*/
-const path = require('path'); /*1*/
+const fs = require('fs'); 
+const path = require('path'); 
 
 
-const filePath = path.resolve(__dirname, '../repository/gold_data.json');/*1*/
+const filePath = path.resolve(__dirname, '../repository/gold_data.json');
 
-
-/*1*/
-/**
- * ✅ อ่านไฟล์
- * ถ้าไฟล์หาย หรือ JSON พัง → throw 500
- */
 function readData() {
   try {
     const raw = fs.readFileSync(filePath, 'utf-8');
@@ -24,9 +18,6 @@ function readData() {
   }
 }
 
-/**
- * ✅ เขียนไฟล์
- */
 function writeData(data) {
   try {
     fs.writeFileSync(filePath, JSON.stringify(data, null, 2));
@@ -37,9 +28,6 @@ function writeData(data) {
   }
 }
 
-/**
- * ✅ Validation
- */
 function validate(data) {
   return (
     data &&
@@ -49,9 +37,5 @@ function validate(data) {
     data.timestamp.trim() !== ""
   );
 }
-/*1*/
 
-
-
-
-module.exports = { readData, writeData }; /*1*/
+module.exports = { readData, writeData }; 

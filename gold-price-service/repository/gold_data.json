@@ -11891,5 +11891,404 @@
     "trend": "up",
     "timestamp": "2026-04-30T11:02:21.236Z",
     "source": "SimulationService"
+  },
+  {
+    "id": "111e3e92-3a21-46c2-b055-a65f656c0c98",
+    "price": 39727,
+    "trend": "down",
+    "timestamp": "2026-04-30T12:37:40.128Z",
+    "source": "SimulationService"
+  },
+  {
+    "id": "b6b5f223-498d-4594-a7db-e3676baab35d",
+    "price": 39505,
+    "trend": "down",
+    "timestamp": "2026-04-30T12:37:50.134Z",
+    "source": "SimulationService"
+  },
+  {
+    "id": "80575307-676d-4817-9790-cb9c583d4d71",
+    "price": 39200,
+    "trend": "down",
+    "timestamp": "2026-04-30T12:38:00.150Z",
+    "source": "SimulationService"
+  },
+  {
+    "id": "f7917d3f-a27f-4720-8fb7-c322c41e1d34",
+    "price": 38709,
+    "trend": "down",
+    "timestamp": "2026-04-30T12:38:10.162Z",
+    "source": "SimulationService"
+  },
+  {
+    "id": "63804c14-040e-48e5-a918-4e81b4f60d37",
+    "price": 38284,
+    "trend": "down",
+    "timestamp": "2026-04-30T12:38:20.172Z",
+    "source": "SimulationService"
+  },
+  {
+    "id": "82fbeb25-174b-44e3-9740-de566067f20c",
+    "price": 38091,
+    "trend": "down",
+    "timestamp": "2026-04-30T12:38:30.182Z",
+    "source": "SimulationService"
+  },
+  {
+    "id": "64ee32ed-041b-421d-b812-f9044db87958",
+    "price": 38549,
+    "trend": "up",
+    "timestamp": "2026-04-30T12:38:40.187Z",
+    "source": "SimulationService"
+  },
+  {
+    "id": "ec3c651e-f4b0-4b3a-9681-80d5091868b2",
+    "price": 38314,
+    "trend": "down",
+    "timestamp": "2026-04-30T12:38:50.193Z",
+    "source": "SimulationService"
+  },
+  {
+    "id": "32c6a726-aca7-4122-945b-187d56e58105",
+    "price": 38169,
+    "trend": "down",
+    "timestamp": "2026-04-30T12:39:00.200Z",
+    "source": "SimulationService"
+  },
+  {
+    "id": "b08f1176-8786-4ae3-a1b7-31c560972f66",
+    "price": 38351,
+    "trend": "up",
+    "timestamp": "2026-04-30T12:39:10.207Z",
+    "source": "SimulationService"
+  },
+  {
+    "id": "6fcb4de8-abc4-46b1-9e75-f2a65ccfe566",
+    "price": 38567,
+    "trend": "up",
+    "timestamp": "2026-04-30T12:39:20.209Z",
+    "source": "SimulationService"
+  },
+  {
+    "id": "185c104c-e737-43e1-a2c1-46a9bbe56f6a",
+    "price": 38620,
+    "trend": "up",
+    "timestamp": "2026-04-30T12:39:30.214Z",
+    "source": "SimulationService"
+  },
+  {
+    "id": "3d2f4be0-516e-4c04-ab33-6856d9d162d5",
+    "price": 38640,
+    "trend": "up",
+    "timestamp": "2026-04-30T12:39:40.222Z",
+    "source": "SimulationService"
+  },
+  {
+    "id": "9ec89e09-5f26-4a27-9b7e-05bf77d946d7",
+    "price": 38292,
+    "trend": "down",
+    "timestamp": "2026-04-30T12:39:50.231Z",
+    "source": "SimulationService"
+  },
+  {
+    "id": "c8c761bc-a0c1-4483-9b61-9f55423c0dc0",
+    "price": 37805,
+    "trend": "down",
+    "timestamp": "2026-04-30T12:40:00.240Z",
+    "source": "SimulationService"
+  },
+  {
+    "id": "0a78e1b2-ef45-4cdc-bdf9-64e468b11b8d",
+    "price": 37702,
+    "trend": "down",
+    "timestamp": "2026-04-30T12:40:10.247Z",
+    "source": "SimulationService"
+  },
+  {
+    "id": "1e3ed107-3886-4559-90bb-0e29a8a645bf",
+    "price": 37697,
+    "trend": "down",
+    "timestamp": "2026-04-30T12:40:20.262Z",
+    "source": "SimulationService"
+  },
+  {
+    "id": "762cd433-d19f-41ad-81cf-d55ae0599d18",
+    "price": 37386,
+    "trend": "down",
+    "timestamp": "2026-04-30T12:40:30.273Z",
+    "source": "SimulationService"
+  },
+  {
+    "id": "5668468b-2612-431d-a845-18de86170d25",
+    "price": 37502,
+    "trend": "up",
+    "timestamp": "2026-04-30T12:40:40.281Z",
+    "source": "SimulationService"
+  },
+  {
+    "id": "ee7861e6-5f4e-4766-a37b-5ab44ab5070b",
+    "price": 37797,
+    "trend": "up",
+    "timestamp": "2026-04-30T12:40:50.283Z",
+    "source": "SimulationService"
+  },
+  {
+    "id": "18fcfd97-b839-4439-9930-1ddc389ccc5e",
+    "price": 37820,
+    "trend": "up",
+    "timestamp": "2026-04-30T12:41:00.293Z",
+    "source": "SimulationService"
+  },
+  {
+    "id": "40823bf9-fc08-43d5-bb30-5a3a1aca4dee",
+    "price": 38001,
+    "trend": "up",
+    "timestamp": "2026-04-30T12:41:10.294Z",
+    "source": "SimulationService"
+  },
+  {
+    "id": "fa0e22a6-c184-4de5-ba37-8bf1e030e0ab",
+    "price": 38334,
+    "trend": "up",
+    "timestamp": "2026-04-30T12:41:20.301Z",
+    "source": "SimulationService"
+  },
+  {
+    "id": "73237bb4-cd13-47a4-b4eb-988709434bf3",
+    "price": 38224,
+    "trend": "down",
+    "timestamp": "2026-04-30T12:41:30.303Z",
+    "source": "SimulationService"
+  },
+  {
+    "id": "6677abfa-158d-4394-8854-ca4f9dcbd001",
+    "price": 38557,
+    "trend": "up",
+    "timestamp": "2026-04-30T12:41:40.314Z",
+    "source": "SimulationService"
+  },
+  {
+    "id": "7eb4e68f-5dd8-4e62-96f0-98e41aa2eb8a",
+    "price": 38757,
+    "trend": "up",
+    "timestamp": "2026-04-30T12:41:50.328Z",
+    "source": "SimulationService"
+  },
+  {
+    "id": "1715e959-2d98-4402-a0f9-b868162c7ae4",
+    "price": 38468,
+    "trend": "down",
+    "timestamp": "2026-04-30T12:42:00.334Z",
+    "source": "SimulationService"
+  },
+  {
+    "id": "f9395401-ea41-4652-bf81-47c6119691cd",
+    "price": 38693,
+    "trend": "up",
+    "timestamp": "2026-04-30T12:42:10.335Z",
+    "source": "SimulationService"
+  },
+  {
+    "id": "799652e4-bb90-4d47-ad73-d9180e1d3fab",
+    "price": 38260,
+    "trend": "down",
+    "timestamp": "2026-04-30T12:42:20.349Z",
+    "source": "SimulationService"
+  },
+  {
+    "id": "e0ad90da-9214-4199-a739-72b1a5163d79",
+    "price": 38066,
+    "trend": "down",
+    "timestamp": "2026-04-30T12:42:30.355Z",
+    "source": "SimulationService"
+  },
+  {
+    "id": "2eb4bd66-3669-4bf4-8e0a-0acad2624e38",
+    "price": 37929,
+    "trend": "down",
+    "timestamp": "2026-04-30T12:42:40.359Z",
+    "source": "SimulationService"
+  },
+  {
+    "id": "74e8f332-8812-400e-a132-d1c8015da51f",
+    "price": 38358,
+    "trend": "up",
+    "timestamp": "2026-04-30T12:42:50.368Z",
+    "source": "SimulationService"
+  },
+  {
+    "id": "15b48062-f9ed-43e9-a948-34425a3fcc83",
+    "price": 38255,
+    "trend": "down",
+    "timestamp": "2026-04-30T12:43:00.370Z",
+    "source": "SimulationService"
+  },
+  {
+    "id": "6ed83edf-be1e-4e7a-b8a2-723e2bf07111",
+    "price": 38077,
+    "trend": "down",
+    "timestamp": "2026-04-30T12:43:10.375Z",
+    "source": "SimulationService"
+  },
+  {
+    "id": "f91ee466-0543-465e-aa81-622d8ea87944",
+    "price": 38045,
+    "trend": "down",
+    "timestamp": "2026-04-30T12:43:20.390Z",
+    "source": "SimulationService"
+  },
+  {
+    "id": "0e240230-6363-4aea-b1a1-cc7d6e9f908e",
+    "price": 37987,
+    "trend": "down",
+    "timestamp": "2026-04-30T12:43:30.400Z",
+    "source": "SimulationService"
+  },
+  {
+    "id": "1d7c6eba-b5b0-414d-9279-05c78e8d2417",
+    "price": 38484,
+    "trend": "up",
+    "timestamp": "2026-04-30T12:43:40.413Z",
+    "source": "SimulationService"
+  },
+  {
+    "id": "47d502b3-f8f0-41dd-9d38-d48b327ee483",
+    "price": 38688,
+    "trend": "up",
+    "timestamp": "2026-04-30T12:43:50.421Z",
+    "source": "SimulationService"
+  },
+  {
+    "id": "125040ae-1b0e-4039-ac3f-c5bdfea1e0df",
+    "price": 38839,
+    "trend": "up",
+    "timestamp": "2026-04-30T12:44:00.422Z",
+    "source": "SimulationService"
+  },
+  {
+    "id": "317ec0de-ad4b-4bfe-9ed3-183203e55f49",
+    "price": 39199,
+    "trend": "up",
+    "timestamp": "2026-04-30T12:44:10.435Z",
+    "source": "SimulationService"
+  },
+  {
+    "id": "be3b46ec-7503-408d-94f2-c42ca2177d7c",
+    "price": 38768,
+    "trend": "down",
+    "timestamp": "2026-04-30T12:44:20.449Z",
+    "source": "SimulationService"
+  },
+  {
+    "id": "e785637d-03e6-4039-8043-9b1b16dea9e4",
+    "price": 38863,
+    "trend": "up",
+    "timestamp": "2026-04-30T12:44:30.462Z",
+    "source": "SimulationService"
+  },
+  {
+    "id": "291d924a-2659-4599-b3c9-6eac28b3859c",
+    "price": 39229,
+    "trend": "up",
+    "timestamp": "2026-04-30T12:44:40.471Z",
+    "source": "SimulationService"
+  },
+  {
+    "id": "478f19fe-7541-4f35-9d51-bd3f2d113dc2",
+    "price": 39218,
+    "trend": "down",
+    "timestamp": "2026-04-30T12:44:50.474Z",
+    "source": "SimulationService"
+  },
+  {
+    "id": "408e5a55-4167-4a4b-bddd-9118f6007577",
+    "price": 39411,
+    "trend": "up",
+    "timestamp": "2026-04-30T12:45:00.483Z",
+    "source": "SimulationService"
+  },
+  {
+    "id": "6530de9a-2c7a-4597-bf8a-2e26f7545ef3",
+    "price": 39230,
+    "trend": "down",
+    "timestamp": "2026-04-30T12:45:10.493Z",
+    "source": "SimulationService"
+  },
+  {
+    "id": "688e9cd3-4c26-4d8c-8874-c6a4d0d0b433",
+    "price": 39446,
+    "trend": "up",
+    "timestamp": "2026-04-30T12:45:20.494Z",
+    "source": "SimulationService"
+  },
+  {
+    "id": "d7d8c1c2-9a15-49e9-8e3d-4b09d07d9776",
+    "price": 39898,
+    "trend": "up",
+    "timestamp": "2026-04-30T12:45:30.507Z",
+    "source": "SimulationService"
+  },
+  {
+    "id": "e0e1a5b7-dcdf-4563-9461-3555e7ff31d1",
+    "price": 40262,
+    "trend": "up",
+    "timestamp": "2026-04-30T12:45:40.519Z",
+    "source": "SimulationService"
+  },
+  {
+    "id": "ce48abb8-3435-41bb-9ff4-4b00f40033d5",
+    "price": 40437,
+    "trend": "up",
+    "timestamp": "2026-04-30T12:45:50.529Z",
+    "source": "SimulationService"
+  },
+  {
+    "id": "0283451e-63a2-4e3a-80af-fbe5d3940ae3",
+    "price": 39992,
+    "trend": "down",
+    "timestamp": "2026-04-30T12:46:00.534Z",
+    "source": "SimulationService"
+  },
+  {
+    "id": "fb58fef6-a066-4872-98bc-cb596d5ae053",
+    "price": 39774,
+    "trend": "down",
+    "timestamp": "2026-04-30T12:46:10.540Z",
+    "source": "SimulationService"
+  },
+  {
+    "id": "521a8c98-1e49-46a7-9916-500b0cde4636",
+    "price": 39959,
+    "trend": "up",
+    "timestamp": "2026-04-30T12:46:20.553Z",
+    "source": "SimulationService"
+  },
+  {
+    "id": "c2e49950-c5ea-4c52-94fc-31b290f19a53",
+    "price": 39634,
+    "trend": "down",
+    "timestamp": "2026-04-30T12:46:30.556Z",
+    "source": "SimulationService"
+  },
+  {
+    "id": "e402804f-21c2-48df-85c5-f7ee9f974163",
+    "price": 40074,
+    "trend": "up",
+    "timestamp": "2026-04-30T12:46:40.567Z",
+    "source": "SimulationService"
+  },
+  {
+    "id": "bd97f758-de4c-44e9-aa81-d6c6da5e88fe",
+    "price": 40052,
+    "trend": "down",
+    "timestamp": "2026-04-30T12:46:50.578Z",
+    "source": "SimulationService"
+  },
+  {
+    "id": "14315cd1-3272-4767-b139-ec84541525ec",
+    "price": 39674,
+    "trend": "down",
+    "timestamp": "2026-04-30T12:47:00.590Z",
+    "source": "SimulationService"
   }
 ]
