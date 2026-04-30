@@ -60,24 +60,27 @@ export default function Login() {
     setLoading(true);
 
     try {
-      // 🚀 ส่งค่าจากช่อง email ไปเป็น username เพื่อให้ Backend ค้นหาได้
       const response = await axios.post('http://localhost:3000/api/login', {
         username: form.email,
         password: form.password
       });
 
-      const { user } = response.data;
+      // 🚀 ข้อมูลที่ Backend ส่งมาให้
+      const { token, user } = response.data; 
 
-      // 🚀 เก็บ Email ลงใน 'token' ตามความต้องการของหัวหน้า
-      localStorage.setItem('token', user.email); 
-      // 🔑 เก็บข้อมูลอื่นๆ เพื่อใช้ใน Dashboard
-      // localStorage.setItem('gt_api_key', user.apiKey); 
+      // ✅ 1. เก็บ JWT Token จริงๆ ไว้ใน 'token' (เอาไว้ใช้กับ ProtectedRoute)
+      localStorage.setItem('token', token); 
+      
+      // ✅ 2. เก็บ Email ไว้ใน 'gt_user_email' (สำคัญมาก! เพื่อให้หน้า Pricing/Dashboard ใช้เช็กตัวตน)
+      localStorage.setItem('gt_user_email', user.email); 
+      
+      // ✅ 3. เก็บชื่อและแผนเพื่อแสดงผลหน้า Dashboard
       localStorage.setItem('gt_user_name', user.username); 
       localStorage.setItem('gt_user_plan', user.plan); 
 
       setLoading(false);
-      navigate('/dashboard');
-      window.location.reload(); // เพื่ออัปเดต Navbar ทันที
+      navigate('/dashboard'); // 🚀 คราวนี้ไปแน่นอน
+      window.location.reload(); 
 
     } catch (err) {
       setError(err.response?.data?.message || 'อีเมลหรือรหัสผ่านไม่ถูกต้อง');

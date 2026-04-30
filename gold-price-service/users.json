@@ -1,0 +1,16 @@
+[
+  {
+    "username": "nok",
+    "email": "sopitajengsiwong@gmail.com",
+    "password": "$2b$10$8blyDe7MT6n4vzBkWE4qeuR6p93cKYitH4.SVKd8zoWKgAKE/5cl.",
+    "plan": "gold",
+    "apiKey": "gt_live_ejr8awpo2"
+  },
+  {
+    "username": "k",
+    "email": "KK@gmail.com",
+    "password": "$2b$10$ib8Iv5hk5sQ0mxfKdutCSezLgQwVF1F0SBhcOojNMaJmNdJ1GRIxG",
+    "plan": "basic",
+    "apiKey": "gt_live_rdeo70qpz"
+  }
+]
