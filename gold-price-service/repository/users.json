@@ -5,5 +5,26 @@
     "password": "$2b$10$k3fzFtkBLDdeF/Fa3oCW3.ACNM93.waRRliQ0vadggcx/GJu8rmw2",
     "plan": "gold",
     "apiKey": "gt_live_giw3tqah9"
+  },
+  {
+    "username": "TheerapongP",
+    "email": "test1@gmail.com",
+    "password": "$2b$10$vYD3coMjhK26hjxFQEn3hekLgM9A7A3n94ksgOMP3i9mWdZ8uG2tm",
+    "plan": "silver",
+    "apiKey": "gt_live_5iv9ewy2a"
+  },
+  {
+    "username": "mean_test",
+    "email": "mean_test@gmail.com",
+    "password": "$2b$10$uELFTu1tzQ1m.9z8P8v6H.jP7if0bz4Y1.HjulsGKrYItgr7I35P6",
+    "plan": "gold",
+    "apiKey": "gt_live_a3xxgwsml"
+  },
+  {
+    "username": "test2",
+    "email": "test2@email.com",
+    "password": "$2b$10$h1MRkvd0cgzxDVbP.KDzTe5sMXRCFq57LAyiiiLmZYRWW6GBAT7eu",
+    "plan": "gold",
+    "apiKey": "gt_live_n4r324f21"
   }
 ]

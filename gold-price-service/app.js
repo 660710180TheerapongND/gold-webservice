@@ -17,13 +17,13 @@ app.use(express.json());
 // --- Helpers สำหรับจัดการไฟล์ users.json ---
 const getUsers = () => {
   try {
-    const data = fs.readFileSync('./users.json', 'utf8');
+    const data = fs.readFileSync('./repository/users.json', 'utf8');
     return data.trim() ? JSON.parse(data) : [];
   } catch (error) { return []; }
 };
 
 const saveUsers = (users) => {
-  try { fs.writeFileSync('./users.json', JSON.stringify(users, null, 2)); }
+  try { fs.writeFileSync('./repository/users.json', JSON.stringify(users, null, 2)); }
   catch (error) { console.error("Error saving users:", error.message); }
 };
 

@@ -12290,5 +12290,47 @@
     "trend": "down",
     "timestamp": "2026-04-30T12:47:00.590Z",
     "source": "SimulationService"
+  },
+  {
+    "id": "d61c7871-4452-46b7-88fa-46ba92387c82",
+    "price": 39552,
+    "trend": "down",
+    "timestamp": "2026-04-30T14:41:01.161Z",
+    "source": "SimulationService"
+  },
+  {
+    "id": "3c0de582-4cc9-4bfa-b290-b0df66d35c6d",
+    "price": 39710,
+    "trend": "up",
+    "timestamp": "2026-04-30T14:41:11.163Z",
+    "source": "SimulationService"
+  },
+  {
+    "id": "9f2325ad-c762-4fd6-928c-72f8a4c0be4a",
+    "price": 39424,
+    "trend": "down",
+    "timestamp": "2026-04-30T14:41:21.164Z",
+    "source": "SimulationService"
+  },
+  {
+    "id": "5e44588e-92d7-4d42-b7f2-673f7a0b3374",
+    "price": 39848,
+    "trend": "up",
+    "timestamp": "2026-04-30T14:41:31.172Z",
+    "source": "SimulationService"
+  },
+  {
+    "id": "d6fcc169-6d4a-4aa1-9e25-a4f9dd5a3e0f",
+    "price": 39385,
+    "trend": "down",
+    "timestamp": "2026-04-30T14:41:41.173Z",
+    "source": "SimulationService"
+  },
+  {
+    "id": "a45ffe6d-d7e9-4322-a472-bb784cdf50a3",
+    "price": 39439,
+    "trend": "up",
+    "timestamp": "2026-04-30T14:41:51.173Z",
+    "source": "SimulationService"
   }
 ]
