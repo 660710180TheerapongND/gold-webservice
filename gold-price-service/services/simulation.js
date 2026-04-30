@@ -41,7 +41,7 @@ async function generatePrice() {
     }
 
     // 5. ส่งผ่าน Webhook ไปยัง Service ของภู
-    try {
+    /*try {
         const phuWebhookUrl = 'http://localhost:4000/api/webhook/gold'; // เปลี่ยนเป็น URL จริง
         const response = await fetch(phuWebhookUrl, {
             method: 'POST',
@@ -58,7 +58,7 @@ async function generatePrice() {
         }
     } catch (error) {
         console.error(`[Webhook] ส่งข้อมูลล้มเหลว (ปลายทางอาจจะยังไม่เปิด Service):`, error.message);
-    }
+    }*/
 }
 
 module.exports = { generatePrice };

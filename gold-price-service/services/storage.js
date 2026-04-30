@@ -2,7 +2,7 @@ const fs = require('fs'); /*1*/
 const path = require('path'); /*1*/
 
 
-const filePath = path.join(__dirname, '../gold_data.json');/*1*/
+const filePath = path.resolve(__dirname, '../repository/gold_data.json');/*1*/
 
 
 /*1*/
