@@ -4,18 +4,17 @@ const fs = require('fs');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 
-// จัดการข้อมูล (เปลี่ยน Path ให้ตรงกับที่หัวหน้าใช้นะครับ)
 const { readData } = require('./services/storage'); 
 const { generatePrice } = require('./services/simulation'); 
 
 const app = express();
 const PORT = 3000;
-const SECRET_KEY = 'gold-tracker-secret-2026'; // ตั้งค่าตรงนี้ให้ตรงกับ config.js
+const SECRET_KEY = 'gold-tracker-secret-2026'; 
 
-// ✅ จุดสำคัญ: ต้องวาง 2 บรรทัดนี้ไว้ "ก่อน" Route ทุกอย่าง
 app.use(cors());
 app.use(express.json()); 
 
+// --- Helpers สำหรับจัดการไฟล์ users.json ---
 const getUsers = () => {
   try {
     const data = fs.readFileSync('./users.json', 'utf8');
@@ -28,26 +27,19 @@ const saveUsers = (users) => {
   catch (error) { console.error("Error saving users:", error.message); }
 };
 
-// --- API Login ---
+// ─── AUTHENTICATION ROUTES ────────────────────────────────────────
+
+// --- API Login --
 app.post('/api/login', async (req, res) => {
   try {
-    // 🛡️ ป้องกันอาการ req.body เป็น undefined[cite: 3]
-    if (!req.body) {
-      return res.status(400).json({ status: "error", message: "Request body is missing" });
-    }
+    if (!req.body) return res.status(400).json({ status: "error", message: "Request body is missing" });
 
     const { username, password } = req.body;
     const users = getUsers();
-    
-    // ค้นหาจากทั้ง username หรือ email[cite: 3]
     const user = users.find(u => u.username === username || u.email === username);
 
     if (user && await bcrypt.compare(password, user.password)) {
-      const token = jwt.sign(
-        { username: user.username, plan: user.plan }, 
-        SECRET_KEY, 
-        { expiresIn: '1h' }
-      );
+      const token = jwt.sign({ username: user.username, plan: user.plan }, SECRET_KEY, { expiresIn: '1h' });
       res.json({
         status: "success",
         token,
@@ -57,12 +49,11 @@ app.post('/api/login', async (req, res) => {
       res.status(401).json({ status: "error", message: "อีเมลหรือรหัสผ่านไม่ถูกต้อง" });
     }
   } catch (err) {
-    console.error(err);
     res.status(500).json({ status: "error", message: err.message });
   }
 });
 
-// --- API Signup ---[cite: 3]
+// --- API Signup --
 app.post('/api/signup', async (req, res) => {
   const { username, email, password, plan } = req.body;
   const users = getUsers();
@@ -79,8 +70,28 @@ app.post('/api/signup', async (req, res) => {
   res.status(201).json({ status: "success", message: "สมัครสมาชิกสำเร็จ!" });
 });
 
-// --- Price Routes ---[cite: 3]
-setInterval(async () => { await generatePrice(); }, 10000);
+
+app.post('/api/upgrade', (req, res) => {
+  const { email, plan } = req.body;
+  const users = getUsers();
+  
+
+  const userIndex = users.findIndex(u => 
+    u.email && email && u.email.toLowerCase() === email.toLowerCase()
+  );
+
+  if (userIndex !== -1) {
+    users[userIndex].plan = plan;
+    saveUsers(users);
+    res.json({ status: "success", message: "Plan upgraded successfully" });
+  } else {
+    res.status(404).json({ status: "error", message: "User not found" });
+  }
+});
+
+// ─── PRICE ROUTES ────────────────────────────────────────────────
+
+setInterval(async () => { await generatePrice(); }, 10000); 
 
 app.get('/prices/latest', (req, res) => {
   const data = readData();
@@ -92,4 +103,8 @@ app.get('/prices/history', (req, res) => {
   res.json({ status: "success", data: readData() });
 });
 
-app.listen(PORT, () => { console.log(`🚀 Server ready at http://localhost:${PORT}`); });
+// ─── START SERVER ───────────────────────────────────────────────
+
+app.listen(PORT, () => { 
+  console.log(`🚀 Server ready at http://localhost:${PORT}`); 
+});

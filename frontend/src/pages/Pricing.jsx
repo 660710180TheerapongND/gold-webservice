@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { Check, ArrowRight, Star, Zap, Crown, Shield, ChevronLeft } from 'lucide-react';
+import { Check, ArrowRight, Star, Zap, Crown, Shield, ChevronLeft, Lock } from 'lucide-react';
 
 const T = {
   ink:    '#0A0806',
@@ -22,6 +22,7 @@ const PLANS = [
   { id: 'gold', tier: '03', name: 'Gold', badge: 'Best Value', badgeVariant: 'best', monthlyPrice: 999, icon: Shield, features: ['API 20 requests / minute', 'Technical Analysis เต็มรูปแบบ', 'Export CSV ไม่จำกัด', 'Priority Support 24/7', 'Custom Webhook & Alerts'], cta: 'เลือกแผน Gold', variant: 'gold' },
 ];
 
+// ... (KEEP COMPARISON_DATA, badgeStyles, cardThemes, CheckIcon, StarIcon, PriceDisplay unchanged) ...
 const COMPARISON_DATA = [
   { feature: 'API Rate Limit',     basic: '5 req/min',  silver: '10 req/min', gold: '20 req/min' },
   { feature: 'Historical Data',    basic: '1 Hour',      silver: '24 Hours',   gold: 'Unlimited'  },
@@ -66,13 +67,8 @@ const cardThemes = {
   },
 };
 
-function CheckIcon({ color }) {
-  return (<svg width="8" height="8" viewBox="0 0 8 8"><polyline points="1,4 3,6 7,2" fill="none" stroke={color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>);
-}
-
-function StarIcon({ color }) {
-  return (<svg width="7" height="7" viewBox="0 0 7 7"><polygon points="3.5,0.5 4.5,2.5 6.5,2.8 5,4.2 5.4,6.2 3.5,5.2 1.6,6.2 2,4.2 0.5,2.8 2.5,2.5" fill={color}/></svg>);
-}
+function CheckIcon({ color }) { return (<svg width="8" height="8" viewBox="0 0 8 8"><polyline points="1,4 3,6 7,2" fill="none" stroke={color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>); }
+function StarIcon({ color }) { return (<svg width="7" height="7" viewBox="0 0 7 7"><polygon points="3.5,0.5 4.5,2.5 6.5,2.8 5,4.2 5.4,6.2 3.5,5.2 1.6,6.2 2,4.2 0.5,2.8 2.5,2.5" fill={color}/></svg>); }
 
 function PriceDisplay({ plan, yearly }) {
   const fmt = (n) => n.toLocaleString('th-TH');
@@ -84,14 +80,17 @@ function PriceDisplay({ plan, yearly }) {
   return (<div style={{ marginBottom: '1.5rem' }}><div style={{ fontFamily: T.serif, fontSize: 52, fontWeight: 600, lineHeight: 1, ...theme.priceMain }}>฿{fmt(price)}</div><div style={{ fontSize: 11, fontFamily: T.sans, fontWeight: 400, marginTop: 4, ...theme.priceUnit }}>{yearly ? 'ต่อปี' : 'ต่อเดือน'}</div></div>);
 }
 
-function PlanCard({ plan, yearly, onSelect, loading, isLoggedIn }) {
+function PlanCard({ plan, yearly, onSelect, loading, isLoggedIn, userPlan }) {
   const [hovered, setHovered] = useState(false);
   const theme = cardThemes[plan.variant];
   const badge = badgeStyles[plan.badgeVariant];
-  const ctaLabel = loading ? 'โปรดรอ...' : isLoggedIn ? 'อัปเกรดตอนนี้' : plan.cta;
+  
+  // 🚀 Logic เช็กสถานะปุ่ม: แผนปัจจุบัน vs แผนใหม่ vs กำลังโหลด[cite: 4]
+  const isCurrentPlan = isLoggedIn && userPlan === plan.id;
+  const ctaLabel = loading ? 'โปรดรอ...' : isCurrentPlan ? 'แผนปัจจุบันของคุณ' : isLoggedIn ? 'อัปเกรดเป็นแผนนี้' : plan.cta;
 
   return (
-    <div onMouseEnter={() => setHovered(true)} onMouseLeave={() => setHovered(false)} style={{ borderRadius: 16, padding: '1.25rem 1.5rem', position: 'relative', overflow: 'hidden', transition: 'all 0.25s', transform: hovered ? 'translateY(-4px)' : 'translateY(0)', ...theme.card }}>
+    <div onMouseEnter={() => setHovered(true)} onMouseLeave={() => setHovered(false)} style={{ borderRadius: 16, padding: '1.25rem 1.5rem', position: 'relative', overflow: 'hidden', transition: 'all 0.25s', transform: hovered ? 'translateY(-4px)' : 'translateY(0)', ...theme.card, opacity: isCurrentPlan ? 0.7 : 1 }}>
       <div style={{ position: 'absolute', top: 14, right: 16, fontFamily: T.serif, fontSize: 48, fontStyle: 'italic', fontWeight: 300, lineHeight: 1, pointerEvents: 'none', userSelect: 'none', ...theme.tier }}>{plan.tier}</div>
       <div style={{ display: 'inline-flex', alignItems: 'center', gap: 5, fontSize: 9, fontFamily: T.sans, fontWeight: 700, letterSpacing: '.2em', textTransform: 'uppercase', padding: '3px 10px', borderRadius: 20, marginBottom: '0.75rem', ...badge }}><StarIcon color={T.goldLt}/> {plan.badge}</div>
       <p style={{ fontFamily: T.sans, fontSize: 11, fontWeight: 700, letterSpacing: '.2em', textTransform: 'uppercase', marginBottom: '0.5rem', ...theme.planName }}>{plan.name}</p>
@@ -100,7 +99,22 @@ function PlanCard({ plan, yearly, onSelect, loading, isLoggedIn }) {
       <ul style={{ listStyle: 'none', marginBottom: '1.25rem', display: 'flex', flexDirection: 'column', gap: 8 }}>
         {plan.features.map((f, i) => (<li key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: 9, fontSize: 12, lineHeight: 1.3 }}><span style={{ width: 14, height: 14, borderRadius: '50%', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', marginTop: 1, ...theme.checkBg }}><CheckIcon color={theme.checkColor}/></span><span style={theme.featureText}>{f}</span></li>))}
       </ul>
-      <button disabled={loading} onClick={() => onSelect(plan.id)} onMouseEnter={e => { Object.assign(e.currentTarget.style, theme.ctaHover); }} onMouseLeave={e => { Object.assign(e.currentTarget.style, { background: theme.cta.background, color: theme.cta.color }); }} style={{ width: '100%', padding: '11px', borderRadius: 10, fontFamily: T.sans, fontSize: 11, fontWeight: 700, letterSpacing: '.12em', textTransform: 'uppercase', cursor: loading ? 'wait' : 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, transition: 'all .2s', opacity: loading ? 0.6 : 1, ...theme.cta }}>{ctaLabel} <ArrowRight size={14}/></button>
+      <button 
+        disabled={loading || isCurrentPlan} 
+        onClick={() => onSelect(plan.id)} 
+        onMouseEnter={e => { if(!isCurrentPlan) Object.assign(e.currentTarget.style, theme.ctaHover); }} 
+        onMouseLeave={e => { if(!isCurrentPlan) Object.assign(e.currentTarget.style, { background: theme.cta.background, color: theme.cta.color }); }} 
+        style={{ 
+          width: '100%', padding: '11px', borderRadius: 10, fontFamily: T.sans, fontSize: 11, fontWeight: 700, letterSpacing: '.12em', textTransform: 'uppercase', 
+          cursor: (loading || isCurrentPlan) ? 'default' : 'pointer', 
+          display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, transition: 'all .2s', 
+          opacity: (loading || isCurrentPlan) ? 0.5 : 1,
+          ...(isCurrentPlan ? { background: 'rgba(255,255,255,0.05)', color: 'rgba(255,255,255,0.3)', border: '1px solid rgba(255,255,255,0.05)' } : theme.cta)
+        }}
+      >
+        {isCurrentPlan ? <Check size={14}/> : <ArrowRight size={14}/>}
+        {ctaLabel}
+      </button>
     </div>
   );
 }
@@ -112,12 +126,13 @@ export default function Pricing() {
 
   const token      = localStorage.getItem('token');
   const userEmail  = localStorage.getItem('gt_user_email');
-  // 🚀 ตรวจสอบเข้มงวด ป้องกันค่า 'undefined' หลอกว่าเป็นผู้ใช้เก่า
+  const userPlan   = localStorage.getItem('gt_user_plan'); // 🚀 ดึงแผนปัจจุบันมาเช็ก[cite: 4]
+  
   const isLoggedIn = !!(token && token !== 'undefined' && userEmail && userEmail !== 'undefined');
 
   const handleSelect = async (planId) => {
     if (isLoggedIn) {
-      // ✅ ผู้ใช้เก่า: ยิงอัปเกรดแผนสมาชิกทันที
+      // ✅ ผู้ใช้ที่ล็อกอินแล้ว: ยิงอัปเกรดแผน[cite: 4]
       setLoading(true);
       try {
         await axios.post('http://localhost:3000/api/upgrade', { email: userEmail, plan: planId });
@@ -130,13 +145,14 @@ export default function Pricing() {
         setLoading(false);
       }
     } else {
-      // 🚀 ผู้ใช้ใหม่: เลือกแผนก่อนแล้วค่อยไปหน้าสมัคร
+      // 🚀 ผู้ใช้ใหม่: เลือกแผนแล้วไปหน้าสมัครสมาชิก (Signup)[cite: 4]
       navigate(`/signup?plan=${planId}&period=${yearly ? 'yearly' : 'monthly'}`);
     }
   };
 
   return (
     <div style={{ fontFamily: T.sans, background: T.ink, color: T.paper, minHeight: '100vh', padding: '3rem 1.5rem 5rem', position: 'relative', overflowX: 'hidden' }}>
+      {/* ... (UI ส่วน Header และ Comparison เหมือนเดิมเป๊ะ) ... */}
       <div style={{ position: 'fixed', top: 0, left: '50%', transform: 'translateX(-50%)', width: 700, height: 350, borderRadius: '50%', background: 'radial-gradient(ellipse, rgba(184,135,42,.09) 0%, transparent 70%)', filter: 'blur(60px)', pointerEvents: 'none' }}/>
       <button onClick={() => navigate(-1)} style={{ position: 'absolute', top: '2rem', left: '2rem', background: 'rgba(255,255,255,.04)', border: '1px solid rgba(255,255,255,.08)', borderRadius: 8, cursor: 'pointer', color: 'rgba(250,247,240,.5)', fontSize: 11, fontFamily: T.sans, fontWeight: 700, display: 'flex', alignItems: 'center', gap: 4, padding: '7px 14px', transition: 'all .2s' }}> <ChevronLeft size={14}/> Back </button>
 
@@ -158,9 +174,12 @@ export default function Pricing() {
         </div>
 
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(240px,1fr))', gap: 12, marginBottom: '5rem' }}>
-          {PLANS.map(plan => ( <PlanCard key={plan.id} plan={plan} yearly={yearly} onSelect={handleSelect} loading={loading} isLoggedIn={isLoggedIn}/> ))}
+          {PLANS.map(plan => ( 
+            <PlanCard key={plan.id} plan={plan} yearly={yearly} onSelect={handleSelect} loading={loading} isLoggedIn={isLoggedIn} userPlan={userPlan}/> 
+          ))}
         </div>
 
+        {/* ... (Table ส่วนล่างเหมือนเดิม) ... */}
         <div>
           <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, marginBottom: 10 }}> <div style={{ width: 20, height: 1, background: T.gold }}/> <span style={{ fontFamily: T.sans, fontSize: 9, fontWeight: 700, letterSpacing: '.3em', textTransform: 'uppercase', color: T.gold }}>Compare</span> <div style={{ width: 20, height: 1, background: T.gold }}/> </div>
