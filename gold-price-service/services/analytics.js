@@ -2,7 +2,7 @@
 const fs = require('fs');
 const path = require('path');
 
-const dataPath = path.join(__dirname, '../gold_data.json');
+path.resolve(__dirname, '../repository/gold_data.json');
 
 // Helper function สำหรับอ่านข้อมูล
 const getGoldData = () => {

@@ -23,8 +23,8 @@ const C = {
 
 const PLANS = {
   basic:   { label: 'Basic',   price: 0,   color: C.muted,  perks: ['Real-time gold feed', '3 alerts/day'] },
-  silver:  { label: 'Silver',  price: 499, color: '#A8A8A8', perks: ['Advanced charts', 'Unlimited alerts'] },
-  gold:    { label: 'Gold',    price: 999, color: C.goldLt, perks: ['Full API access', 'White-glove onboarding'] },
+  silver:  { label: 'Silver',  price: 99, color: '#A8A8A8', perks: ['Advanced charts', 'Unlimited alerts'] },
+  gold:    { label: 'Gold',    price: 199, color: C.goldLt, perks: ['Full API access', 'White-glove onboarding'] },
 };
 
 // ─── FloatInput (นอก component หลัก ป้องกัน focus loss) ─────────────────────

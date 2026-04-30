@@ -18,8 +18,8 @@ const T = {
 
 const PLANS = [
   { id: 'basic', tier: '01', name: 'Basic', badge: 'ฟรีตลอดกาล', badgeVariant: 'free', monthlyPrice: null, icon: Zap, features: ['API 5 requests / minute', 'ราคาทองคำ Real-time', 'Auto sync ทุก 1 นาที'], cta: 'เริ่มใช้งานฟรี', variant: 'basic' },
-  { id: 'silver', tier: '02', name: 'Silver', badge: 'Most Popular', badgeVariant: 'popular', monthlyPrice: 499, icon: Crown, features: ['API 10 requests / minute', 'สถิติ Min / Max / Average', 'กราฟย้อนหลัง 24 ชั่วโมง', 'Dashboard แบบ Pro'], cta: 'เลือกแผน Silver', variant: 'silver' },
-  { id: 'gold', tier: '03', name: 'Gold', badge: 'Best Value', badgeVariant: 'best', monthlyPrice: 999, icon: Shield, features: ['API 20 requests / minute', 'Technical Analysis เต็มรูปแบบ', 'Export CSV ไม่จำกัด', 'Priority Support 24/7', 'Custom Webhook & Alerts'], cta: 'เลือกแผน Gold', variant: 'gold' },
+  { id: 'silver', tier: '02', name: 'Silver', badge: 'Most Popular', badgeVariant: 'popular', monthlyPrice: 99, icon: Crown, features: ['API 10 requests / minute', 'สถิติ Min / Max / Average', 'กราฟย้อนหลัง 24 ชั่วโมง', 'Dashboard แบบ Pro'], cta: 'เลือกแผน Silver', variant: 'silver' },
+  { id: 'gold', tier: '03', name: 'Gold', badge: 'Best Value', badgeVariant: 'best', monthlyPrice: 199, icon: Shield, features: ['API 20 requests / minute', 'Technical Analysis เต็มรูปแบบ', 'Export CSV ไม่จำกัด', 'Priority Support 24/7', 'Custom Webhook & Alerts'], cta: 'เลือกแผน Gold', variant: 'gold' },
 ];
 
 // ... (KEEP COMPARISON_DATA, badgeStyles, cardThemes, CheckIcon, StarIcon, PriceDisplay unchanged) ...
