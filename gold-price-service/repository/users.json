@@ -5,5 +5,19 @@
     "password": "$2b$10$k3fzFtkBLDdeF/Fa3oCW3.ACNM93.waRRliQ0vadggcx/GJu8rmw2",
     "plan": "gold",
     "apiKey": "gt_live_giw3tqah9"
+  },
+  {
+    "username": "TheerapongP",
+    "email": "test1@gmail.com",
+    "password": "$2b$10$vYD3coMjhK26hjxFQEn3hekLgM9A7A3n94ksgOMP3i9mWdZ8uG2tm",
+    "plan": "silver",
+    "apiKey": "gt_live_5iv9ewy2a"
+  },
+  {
+    "username": "test2",
+    "email": "test2@gmail.com",
+    "password": "$2b$10$1JnpCo1gErcUk23nL/N1A.JYPz3K1OrjXh9PMS21V2nAusw0n0mm6",
+    "plan": "gold",
+    "apiKey": "gt_live_qcpdkv4da"
   }
 ]

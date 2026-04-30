@@ -1,8 +1,7 @@
 const jwt = require('jsonwebtoken');
-const { SECRET_KEY } = require('../config'); // ดึงมาจากไฟล์ config
+const { SECRET_KEY } = require('../config'); 
 
 const authMiddleware = (req, res, next) => {
-    // 1. ดึง Token จาก Header "Authorization: Bearer <token>"
     const authHeader = req.headers['authorization'];
     const token = authHeader && authHeader.split(' ')[1];
 
@@ -14,7 +13,6 @@ const authMiddleware = (req, res, next) => {
         });
     }
 
-    // 2. ตรวจสอบความถูกต้องของบัตร (JWT)
     jwt.verify(token, SECRET_KEY, (err, decoded) => {
         if (err) {
             return res.status(401).json({
@@ -24,7 +22,6 @@ const authMiddleware = (req, res, next) => {
             });
         }
 
-        // 3. แนบข้อมูลเข้าไปใน Request 
         req.user = decoded;
         req.userPlan = decoded.plan;
         next();
